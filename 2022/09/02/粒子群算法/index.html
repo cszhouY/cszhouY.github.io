@@ -315,18 +315,19 @@ class="math inline">\(k\)</span>代时的历史最好位置</p>
 <h2 id="算法步骤">算法步骤</h2>
 <p><span class="math inline">\(step\ 1\)</span>
 初始化微粒（群体规模为<span
-class="math inline">\(m\)</span>），微粒的初始位置和速度取随机值 <span
-class="math inline">\(step\ 2\)</span>
-评价每个微粒的适应度（优化目标函数值） <span class="math inline">\(step\
-3\)</span>
-对每个微粒，将它的适应值和它经历过的最好位置<em>pbest</em>的作比较，如果较好，则将其作为该粒子历史最佳位置<em>pbest</em>
-<span class="math inline">\(step\ 4\)</span>
+class="math inline">\(m\)</span>），微粒的初始位置和速度取随机值</p>
+<p><span class="math inline">\(step\ 2\)</span>
+评价每个微粒的适应度（优化目标函数值）</p>
+<p><span class="math inline">\(step\ 3\)</span>
+对每个微粒，将它的适应值和它经历过的最好位置<em>pbest</em>的作比较，如果较好，则将其作为该粒子历史最佳位置<em>pbest</em></p>
+<p><span class="math inline">\(step\ 4\)</span>
 对每个微粒，将它的适应值和全局所经历最好位置
-<em>gbest</em>的作比较，如果较好，则将其作为全局最佳位置<em>gbest</em>
-<span class="math inline">\(step\ 5\)</span>
-依据进化方程更新微粒的速度与位置 <span class="math inline">\(step\
-6\)</span> 如未达到结束条件（通常为足够好的适应值或达到一个预设最大代数
-<span class="math inline">\(G_{max}\)</span> ），回到<span
+<em>gbest</em>的作比较，如果较好，则将其作为全局最佳位置<em>gbest</em></p>
+<p><span class="math inline">\(step\ 5\)</span>
+依据进化方程更新微粒的速度与位置</p>
+<p><span class="math inline">\(step\ 6\)</span>
+如未达到结束条件（通常为足够好的适应值或达到一个预设最大代数 <span
+class="math inline">\(G_{max}\)</span> ），回到<span
 class="math inline">\(step\ 2\)</span></p>
 <h1 id="算法案例">算法案例</h1>
 <h2 id="无约束条件">无约束条件</h2>
