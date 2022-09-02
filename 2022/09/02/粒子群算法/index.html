@@ -288,29 +288,31 @@ V_{i}^{t+1}=w\cdot V_i^t + c_1\cdot r_1 \cdot (P_i^t-X_i^t)+c_2 \cdot
 r_2 \cdot (P_{g}^t-X_i^t)\\
 ~\\
 X_i^{t+1}=X_i^t+V_i^{t+1}
-\]</span> 参数含义如下： + <span
-class="math inline">\(V_i^k\)</span>：第<span
+\]</span> 参数含义如下：</p>
+<ul>
+<li><span class="math inline">\(V_i^k\)</span>：第<span
 class="math inline">\(i\)</span>个粒子第<span
 class="math inline">\(k\)</span>代的速度，即第<span
 class="math inline">\(k-1\)</span>代到第<span
-class="math inline">\(k\)</span>代的运动矢量 + <span
-class="math inline">\(X_i^k\)</span>：第<span
+class="math inline">\(k\)</span>代的运动矢量</li>
+<li><span class="math inline">\(X_i^k\)</span>：第<span
 class="math inline">\(i\)</span>个粒子第<span
-class="math inline">\(k\)</span>代的位置坐标 + <span
-class="math inline">\(w\)</span>：自身权重系数，取<span
+class="math inline">\(k\)</span>代的位置坐标</li>
+<li><span class="math inline">\(w\)</span>：自身权重系数，取<span
 class="math inline">\(0.9\)</span>到<span
-class="math inline">\(1.2\)</span>较合适 + <span
-class="math inline">\(c_1\)</span>：自身认知常数，取<span
-class="math inline">\(2.0\)</span>较合适 + <span
-class="math inline">\(c_2\)</span>：社会认知常数，取<span
-class="math inline">\(2.0\)</span>较合适 + <span
-class="math inline">\(r_1,r_2\)</span>：区间<span
-class="math inline">\([0,1]\)</span>内随机数 + <span
-class="math inline">\(P_i^k\)</span>：第<span
+class="math inline">\(1.2\)</span>较合适</li>
+<li><span class="math inline">\(c_1\)</span>：自身认知常数，取<span
+class="math inline">\(2.0\)</span>较合适</li>
+<li><span class="math inline">\(c_2\)</span>：社会认知常数，取<span
+class="math inline">\(2.0\)</span>较合适</li>
+<li><span class="math inline">\(r_1,r_2\)</span>：区间<span
+class="math inline">\([0,1]\)</span>内随机数</li>
+<li><span class="math inline">\(P_i^k\)</span>：第<span
 class="math inline">\(i\)</span>个粒子运动到第<span
-class="math inline">\(k\)</span>代时的历史最好位置 + <span
-class="math inline">\(P_{gi}^k\)</span>：所有微粒运动到第<span
-class="math inline">\(k\)</span>代时的历史最好位置</p>
+class="math inline">\(k\)</span>代时的历史最好位置</li>
+<li><span class="math inline">\(P_{gi}^k\)</span>：所有微粒运动到第<span
+class="math inline">\(k\)</span>代时的历史最好位置</li>
+</ul>
 <p>除了以上在公式中出现的参数，还有其它参数需要注意，如种群规模即粒子数量，粒子位置的范围即自变量定义域，运动速度上下限等。</p>
 <h2 id="算法步骤">算法步骤</h2>
 <p><span class="math inline">\(step\ 1\)</span>
