@@ -351,7 +351,131 @@ class="math inline">\(N\)</span>个个体，组成新的种群集合，以确保
 <p>交叉是指将某两个或多个个体的基因片段进行交换，以产生出新个体，提高全局搜索能力。</p>
 <h3 id="单点交叉与多点交叉">单点交叉与多点交叉</h3>
 <p>单点交叉是最简单的交叉方法，即在个体编码串中随机设置一个交叉点，在该点相互交换两个配对个体的部分染色体。</p>
-<p>$$ \begin{matrix} A: &amp; 100110\textcolor</p>
+<p><span class="math display">\[
+\begin{matrix}
+A: &amp; 100110\textcolor{blue}{011}\\
+B: &amp; 010011\textcolor{red}{101}
+\end{matrix}
+\quad
+\xRightarrow[]{单点交叉}
+\quad
+\begin{matrix}
+A: &amp; 100110\textcolor{red}{101}\\
+B: &amp; 010011\textcolor{blue}{011}
+\end{matrix}
+\]</span></p>
+<p>单点交叉对个体编码结构的破坏最小，当个体适应度较高时，单点交叉降低个体适应度的可能性最小。另外，还有双点交叉与多点交叉等多种交叉方式。其中双点交叉表示在个体编码串中设置两个交叉点，将两个交叉点中间的编码串进行交换，如下：</p>
+<p><span class="math display">\[
+\begin{matrix}
+A: &amp; 10\textcolor{blue}{0110}011\\
+B: &amp; 01\textcolor{red}{0011}101
+\end{matrix}
+\quad
+\xRightarrow[]{双点交叉}
+\quad
+\begin{matrix}
+A: &amp; 10\textcolor{red}{0011}011\\
+B: &amp; 01\textcolor{blue}{0110}101
+\end{matrix}
+\]</span></p>
+<p>顾名思义，多点交叉指设两个以上的交叉点。但是在交叉过程中一般不推荐使用多点交叉方式，因为它可能破坏一些好的模式，使适应度高的个体很难保存下来，从而影响遗传算法的性能。</p>
+<p><strong>需要注意，进行交叉的个体是随机配对的，交叉点的选取也是随机的，已配对的个体依概率发生交叉。</strong></p>
+<h3 id="算术交叉">算术交叉</h3>
+<p>算数交叉是指由两个个体的线性组合而产生出两个新的个体，<strong>算数交叉操作的对象一般是浮点数编码的个体。</strong>假设在两个个体<span
+class="math inline">\(X_A^t\)</span>、<span
+class="math inline">\(X_B^t\)</span>之间进行交叉算数交叉，则交叉后产生的两个新个体为</p>
+<p><span class="math display">\[
+\begin{cases}
+X_A^{t+1}=\alpha X_B^{t} + (1-\alpha) X_A^t\\
+X_B^{t+1}=\alpha X_A^{t} + (1-\alpha) X_B^t\\
+\end{cases}
+\]</span></p>
+<p>当<span
+class="math inline">\(\alpha\)</span>是一个常数时，此时交叉运算称为均匀算术交叉运算；当<span
+class="math inline">\(\alpha\)</span>是一个由进化代数所决定的变量时，此时交叉运算称为非均匀算数交叉。</p>
+<h2 id="变异">变异</h2>
+<p>变异是指，在较小概率内，将个体染色体编码串中的某些基因用其它等位基因替代。变异操作能够改善算法的局部搜索能力，并且维持种群的多样性，防止出现早熟现象，使程序陷入局部最优解的可能性降低。</p>
+<h3 id="基本位变异">基本位变异</h3>
+<p>二进制编码最常用的变异方法为基本位变异，其中基本位变异包括单点变异于多点变异，即随机选取编码串上一个或多个基因座发生突变。对于二进制编码，变异操作就是将个体在变异点上的基因座上的值取反。</p>
+<p><span class="math display">\[
+1001\textcolor{red}{1}0011
+\xRightarrow[]{单点变异}
+1001\textcolor{red}{0}0011\\
+10\textcolor{red}{0}1\textcolor{red}{1}00\textcolor{red}{1}1
+\xRightarrow[]{多点变异}
+10\textcolor{red}{1}1\textcolor{red}{0}00\textcolor{red}{0}1\\
+\]</span></p>
+<p>基本位变异基因座位置是随机的。</p>
+<h3 id="非均匀变异">非均匀变异</h3>
+<p>基本位变异并不适合浮点数编码的串，对于浮点数编码的个体，可以用变量取值范围<span
+class="math inline">\([X_{min},
+X_{max}]\)</span>内的某个值替换原基因值。当取值范围中每一个值被选中的概率是均匀的，称为<strong>均匀变异</strong>。均匀变异在遗传算法运行初期能使搜索点在整个搜索空间内自由移动，有利于增加种群多样性；但是它不适合对重点区域进行搜索，在算法运行后期将会影响性能。</p>
+<p>非均匀变异的具体操作过程与均匀变异相似，但它重点搜索原个体附近的微小区域。若变异点<span
+class="math inline">\(x_k\)</span>处基因值得取值范围为<span
+class="math inline">\([X^k_{min}, X^k_{max}]\)</span>，则新的基因值<span
+class="math inline">\(x_k&#39;\)</span>为</p>
+<p><span class="math display">\[
+x_k&#39;=
+\begin{cases}
+x_k+\Delta(t,X_{max}^k-x_k) &amp; rand()\mod 2=0\\
+x_k+\Delta(t,x_k-X_{max}^k) &amp; rand()\mod 2=1\\
+\end{cases}
+\]</span></p>
+<p>其中，<span class="math inline">\(\Delta(t,y)\)</span>表示在<span
+class="math inline">\([0,y]\)</span>范围内符合非均匀分布的一个随机数，并且随着进化代数<span
+class="math inline">\(t\)</span>的增加，<span
+class="math inline">\(\delta(t,y)\)</span>趋近于<span
+class="math inline">\(0\)</span>的概率也逐渐增加。以下是一种<span
+class="math inline">\(\Delta(t,y)\)</span>的定义方式</p>
+<p><span class="math display">\[
+\Delta (t,y)=y\cdot (1-r^{(\frac{1-t}{T})b})
+\]</span></p>
+<p>非均匀变异使得算法在初期进行均匀随机搜索，而在后期进行局部搜索。随着算法的进行，非均匀编译使得最优解的搜索过程更加集中在某一更有希望的重点区域中。</p>
+<h1 id="算法步骤">算法步骤</h1>
+<p>遗传算的步骤如下：</p>
+<ol type="1">
+<li><strong>初始化种群</strong>。设置种群参数，包括种群规模、基因长度、染色体长度、迭代次数等</li>
+<li><strong>编码</strong>。确定合适的编码方式，建立由个体基因型<span
+class="math inline">\(X\)</span>到个体表现型<span
+class="math inline">\(x\)</span>的映射关系</li>
+<li><strong>评价个体适应度</strong>。确定由目标函数<span
+class="math inline">\(f(x)\)</span>到个体适应度<span
+class="math inline">\(F(x)\)</span>的转换规则</li>
+<li><strong>选择</strong>。依据个体适应度，以一定规则挑选出个体适应高的个体复制到下一代</li>
+<li><strong>交叉</strong>。对种群中的个体之间进行随机配对，并使用合适的交叉方法依概率交换个体的基因片段</li>
+<li><strong>突变</strong>。以较小概率改变个体的一个或多个基因。</li>
+<li><strong>判断是否满足迭代终止条件</strong>。通常为是否达到最大迭代次数<span
+class="math inline">\(G_{max}\)</span>，若满足则输出种群最优个体；若不满足回到第4步</li>
+</ol>
+<p><img src="https://pic.imgdb.cn/item/631607f616f2c2beb1c199ff.png" style="zoom: 80%;" /></p>
+<h1 id="例程">例程</h1>
+<p><em>Rosenbrock</em>香蕉函数定义如下： <span class="math display">\[
+f(x_1,x_2)=100(x_1^2+x_2)^2+(1-x_1)^2\\
+s.t.\ -2.048\leq x_1,x_2\leq 2.048\\
+\]</span></p>
+<div data-align="center">
+<img src="https://pic.imgdb.cn/item/631607d216f2c2beb1c1747f.png">
+</div>
+<p>设置种群规模为<span
+class="math inline">\(100\)</span>，单个基因长度为<span
+class="math inline">\(10\)</span>，交叉率为<span
+class="math inline">\(0.6\)</span>，突变率为<span
+class="math inline">\(0.01\)</span>，进化代数为<span
+class="math inline">\(100\)</span>，利用二进制编码方式对变量进行编码，采用双点交叉、基本位变异方法，遗传算法程序如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np  </span><br><span class="line"><span class="keyword">import</span> random <span class="keyword">as</span> rd </span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GA</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, nVar, xMin, xMax, geneLen, popSize = <span class="number">100</span>, crosRate = <span class="number">0.6</span>, mutRate = <span class="number">0.01</span>, generation = <span class="number">100</span></span>):</span><br><span class="line">        self.nVar = nVar                            <span class="comment"># 变量个数</span></span><br><span class="line">        self.xMin = np.array(xMin, dtype = <span class="built_in">float</span>)   <span class="comment"># 自变量下限</span></span><br><span class="line">        self.xMax = np.array(xMax, dtype = <span class="built_in">float</span>)   <span class="comment"># 自变量上限</span></span><br><span class="line">        self.popSize = popSize                      <span class="comment"># 种群规模</span></span><br><span class="line">        self.geneLen = geneLen                      <span class="comment"># 基因长度</span></span><br><span class="line">        self.chromLen = nVar * geneLen              <span class="comment"># 染色体长度  </span></span><br><span class="line">        self.crosRate = crosRate                    <span class="comment"># 交叉率</span></span><br><span class="line">        self.mutRate = mutRate                      <span class="comment"># 突变率</span></span><br><span class="line">        self.generation = generation                <span class="comment"># 迭代次数</span></span><br><span class="line">        <span class="comment"># 初始化第一代种群，二进制编码</span></span><br><span class="line">        self.pop = np.random.randint(<span class="number">0</span>, <span class="number">2</span>, size=(self.popSize, self.chromLen))</span><br><span class="line">    <span class="comment"># 解码</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">translate</span>(<span class="params">self</span>):</span><br><span class="line">        popPerform = np.zeros((self.popSize, self.nVar), dtype=<span class="built_in">float</span>)</span><br><span class="line">        <span class="comment"># 转换成十进制</span></span><br><span class="line">        tmp = np.logspace(self.geneLen - <span class="number">1</span>, <span class="number">0</span>, self.geneLen, base=<span class="number">2</span>)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(self.popSize):</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(self.nVar):</span><br><span class="line">                popPerform[i][j] = np.dot(self.pop[i][j*self.geneLen:(j+<span class="number">1</span>)*self.geneLen], tmp)</span><br><span class="line">        <span class="comment"># 利用解码公式转换</span></span><br><span class="line">        popPerform = self.xMin + popPerform * (self.xMax - self.xMin)/(<span class="number">2</span>**self.geneLen - <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> popPerform</span><br><span class="line">    <span class="comment"># 适应度，由于该目标函数值总为正值，因此直接将目标函数作为个体适应度评价标准</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">fitness</span>(<span class="params">self, X</span>):</span><br><span class="line">        x1, x2 = X[<span class="number">0</span>], X[<span class="number">1</span>]</span><br><span class="line">        fx = <span class="number">100</span> * (x1**<span class="number">2</span> - x2)**<span class="number">2</span> + (<span class="number">1</span>-x1)**<span class="number">2</span></span><br><span class="line">        <span class="keyword">return</span> fx</span><br><span class="line">    <span class="comment"># 选择</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">select</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 计算每个个体的适应度</span></span><br><span class="line">        popFit = np.array([self.fitness(self.translate()[i]) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(self.popSize)])</span><br><span class="line">        <span class="comment"># 轮盘赌选择下一代</span></span><br><span class="line">        idx = np.random.choice(np.arange(self.popSize), size=self.popSize, replace=<span class="literal">True</span>, p=(popFit)/(popFit.<span class="built_in">sum</span>()) )</span><br><span class="line">        self.pop = self.pop[idx]</span><br><span class="line">    <span class="comment"># 交叉</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">crossover</span>(<span class="params">self</span>):</span><br><span class="line">        idx = np.arange(self.popSize)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(self.popSize//<span class="number">2</span>):</span><br><span class="line">            <span class="comment"># 从种群中随机抽取一对个体进行交叉</span></span><br><span class="line">            idx_i = np.random.choice(idx.shape[<span class="number">0</span>], size = <span class="number">2</span>, replace=<span class="literal">False</span>)</span><br><span class="line">            couple = idx[idx_i]</span><br><span class="line">            idx = np.delete(idx, idx_i)</span><br><span class="line">            <span class="comment"># 以一定概率发生交叉</span></span><br><span class="line">            <span class="keyword">if</span> rd.uniform(<span class="number">0</span>,<span class="number">1</span>) &lt; self.crosRate:</span><br><span class="line">                <span class="comment"># 随机抽取一段基于片段</span></span><br><span class="line">                l = rd.randint(<span class="number">0</span>, self.popSize-<span class="number">1</span>)</span><br><span class="line">                r = rd.randint(l, self.popSize)</span><br><span class="line">                self.pop[couple, l:r] = self.pop[couple[::-<span class="number">1</span>], l:r]</span><br><span class="line">    <span class="comment"># 突变</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">mutation</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(self.popSize):</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(self.chromLen):</span><br><span class="line">                <span class="comment"># 以一定概率突变</span></span><br><span class="line">                <span class="keyword">if</span> rd.uniform(<span class="number">0</span>, <span class="number">1</span>) &lt; self.mutRate:</span><br><span class="line">                    self.pop[i][j] = <span class="keyword">not</span> self.pop[i][j]</span><br><span class="line">    <span class="comment"># 迭代</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">update</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">for</span> gen <span class="keyword">in</span> <span class="built_in">range</span>(self.generation):</span><br><span class="line">            self.select()</span><br><span class="line">            self.crossover()</span><br><span class="line">            self.mutation()</span><br><span class="line">    <span class="comment"># 输出</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">display</span>(<span class="params">self</span>):</span><br><span class="line">        popPerform = self.translate()</span><br><span class="line">        idx, best = <span class="number">0</span>, self.fitness(popPerform[<span class="number">0</span>])</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, self.popSize):</span><br><span class="line">            fx = self.fitness(popPerform[i])</span><br><span class="line">            <span class="keyword">if</span> fx &gt; best:</span><br><span class="line">                idx, best = i, fx</span><br><span class="line">        <span class="built_in">print</span>(popPerform[idx])</span><br><span class="line">        <span class="built_in">print</span>(best)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    Rosenbrock_GA = GA(nVar = <span class="number">2</span>, xMin = [-<span class="number">2.048</span>, -<span class="number">2.048</span>], xMax=[<span class="number">2.048</span>, <span class="number">2.048</span>], geneLen = <span class="number">10</span>)</span><br><span class="line">    Rosenbrock_GA.update()</span><br><span class="line">    Rosenbrock_GA.display()</span><br></pre></td></tr></table></figure>
+<p>筛选出最优输出结果 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[-2.04399609 -2.048     ]</span><br><span class="line">3885.4739163295735</span><br></pre></td></tr></table></figure></p>
+<h1 id="参考">参考</h1>
+<ul>
+<li><a
+target="_blank" rel="noopener" href="https://book.douban.com/subject/1237247/">遗传算法原理及应用 -
+周明,孙树栋编著</a></li>
+<li><a
+target="_blank" rel="noopener" href="https://blog.csdn.net/ha_ha_ha233/article/details/91364937?ops_request_misc=%7B%22request%5Fid%22%3A%22166212109416782244822973%22%2C%22scm%22%3A%2220140713.130102334..%22%7D&amp;request_id=166212109416782244822973&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-2-91364937-null-null.142%5Ev46%5Epc_rank_34_1&amp;utm_term=遗传算法&amp;spm=1018.2226.3001.4187">遗传算法详解
+附python代码实现_- CSDN(csdn.net)</a></li>
+<li><a
+target="_blank" rel="noopener" href="https://www.jianshu.com/p/ae5157c26af9">超详细的遗传算法(Genetic
+Algorithm)解析 - 简书 (jianshu.com)</a></li>
+</ul>
 
         </div>
 
