@@ -263,8 +263,8 @@
 <p>遗传算法将每个自变量视为一个基因，一个可行解为一个个体，所有可行解的集合为种群，目标函数值得优化程度为种群对环境得适应度。因此，可行解向最优解靠近的过程就可以被视为一个种群向适应环境方向进化的过程。在迭代中，优势解被保留，劣势解被舍弃，即为“优生劣汰”。同时，我们模仿生物遗传过程中基因与染色体的交叉、变异操作，对可行解进行扰动，即可到达全局搜索和局部搜索的目的。</p>
 <h1 id="算法原理">算法原理</h1>
 <h2 id="编码">编码</h2>
-<h3 id="二进制编码">二进制编码</h3>
 <p>生物学介绍，ATCGU等嘌呤或嘧啶的不同排列为基因编码。在遗传算法中，我们也需要将每个自变量进行编码。总的来说，编码方法可以分为三大类：二进制编码方法、浮点数编码方法、符号编码方法。本文主要介绍二进制编码方法与浮点数编码方法。</p>
+<h3 id="二进制编码">二进制编码</h3>
 <p>二进制编码方法使用二进制符号0和1对变量进行编码。对于取值范围为<span
 class="math inline">\([X_{min}, X_{max}]\)</span>的变量<span
 class="math inline">\(x\)</span>，我们用长度为<span
@@ -353,29 +353,29 @@ class="math inline">\(N\)</span>个个体，组成新的种群集合，以确保
 <p>单点交叉是最简单的交叉方法，即在个体编码串中随机设置一个交叉点，在该点相互交换两个配对个体的部分染色体。</p>
 <p><span class="math display">\[
 \begin{matrix}
-A: &amp; 100110\textcolor{blue}{011}\\
-B: &amp; 010011\textcolor{red}{101}
+A: &amp; 100110|{011}\\
+B: &amp; 010011|{101}
 \end{matrix}
 \quad
-\xRightarrow[]{单点交叉}
+=&gt;
 \quad
 \begin{matrix}
-A: &amp; 100110\textcolor{red}{101}\\
-B: &amp; 010011\textcolor{blue}{011}
+A: &amp; 100110|{101}\\
+B: &amp; 010011|{011}
 \end{matrix}
 \]</span></p>
 <p>单点交叉对个体编码结构的破坏最小，当个体适应度较高时，单点交叉降低个体适应度的可能性最小。另外，还有双点交叉与多点交叉等多种交叉方式。其中双点交叉表示在个体编码串中设置两个交叉点，将两个交叉点中间的编码串进行交换，如下：</p>
 <p><span class="math display">\[
 \begin{matrix}
-A: &amp; 10\textcolor{blue}{0110}011\\
-B: &amp; 01\textcolor{red}{0011}101
+A: &amp; 10|{0110}|011\\
+B: &amp; 01|{0011}|101
 \end{matrix}
 \quad
-\xRightarrow[]{双点交叉}
+=&gt;
 \quad
 \begin{matrix}
-A: &amp; 10\textcolor{red}{0011}011\\
-B: &amp; 01\textcolor{blue}{0110}101
+A: &amp; 10|{0011}|011\\
+B: &amp; 01|{0110}|101
 \end{matrix}
 \]</span></p>
 <p>顾名思义，多点交叉指设两个以上的交叉点。但是在交叉过程中一般不推荐使用多点交叉方式，因为它可能破坏一些好的模式，使适应度高的个体很难保存下来，从而影响遗传算法的性能。</p>
@@ -398,12 +398,12 @@ class="math inline">\(\alpha\)</span>是一个由进化代数所决定的变量�
 <h3 id="基本位变异">基本位变异</h3>
 <p>二进制编码最常用的变异方法为基本位变异，其中基本位变异包括单点变异于多点变异，即随机选取编码串上一个或多个基因座发生突变。对于二进制编码，变异操作就是将个体在变异点上的基因座上的值取反。</p>
 <p><span class="math display">\[
-1001\textcolor{red}{1}0011
-\xRightarrow[]{单点变异}
-1001\textcolor{red}{0}0011\\
-10\textcolor{red}{0}1\textcolor{red}{1}00\textcolor{red}{1}1
-\xRightarrow[]{多点变异}
-10\textcolor{red}{1}1\textcolor{red}{0}00\textcolor{red}{0}1\\
+单点变异:\quad 1001{1}0011\
+=&gt;\
+1001{0}0011\\
+多点变异:\quad 10{0}1{1}00{1}1\
+=&gt;\
+10{1}1{0}00{0}1\\
 \]</span></p>
 <p>基本位变异基因座位置是随机的。</p>
 <h3 id="非均匀变异">非均匀变异</h3>
@@ -451,6 +451,7 @@ class="math inline">\(G_{max}\)</span>，若满足则输出种群最优个体；
 <h1 id="例程">例程</h1>
 <p><em>Rosenbrock</em>香蕉函数定义如下： <span class="math display">\[
 f(x_1,x_2)=100(x_1^2+x_2)^2+(1-x_1)^2\\
+~\\
 s.t.\ -2.048\leq x_1,x_2\leq 2.048\\
 \]</span></p>
 <div data-align="center">
