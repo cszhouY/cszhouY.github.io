@@ -258,76 +258,51 @@
         </header>
 
         <div class="post-content">
-            <h1 id="线性规划简介">线性规划简介</h1>
-<p>简单来说线性规划（LP）是指在给出一系列约束条件后求解目标函数的极值问题，该类题型在中学数学中常见，这里不再赘述。一个简单的例子:
-<span class="math display">\[
+            <h1 id="线性规划简介"><a href="#线性规划简介" class="headerlink" title="线性规划简介"></a>线性规划简介</h1><p>简单来说线性规划（LP）是指在给出一系列约束条件后求解目标函数的极值问题，该类题型在中学数学中常见，这里不再赘述。一个简单的例子:</p>
+<script type="math/tex; mode=display">
 \max \ f(x)=2x_1 + 3x_2 - 5x3\\
 s.t
 \begin{cases}
-x1 + 3x_2 + x_3 &lt; 12\\
+x1 + 3x_2 + x_3 < 12\\
 2x1 - 5x_2 + x_3 \geq 10\\
 x_1 + x_2 + x_3 = 7\\
 x_1,x_2,x_3\leq 0
-\end{cases}
-\]</span></p>
-<p><span class="math inline">\(x_1\)</span>、<span
-class="math inline">\(x_2\)</span>、<span
-class="math inline">\(x_3\)</span>称为<strong>决策变量</strong>，<span
-class="math inline">\(f(x)\)</span>称为<strong>目标函数</strong>，<span
-class="math inline">\(s.t.\)</span>称为<strong>约束条件</strong>，这是线性规划问题的三个关键因素。在数学建模中，我们需要在具体问题中抽象出这三个关键因素，并分析它们的属性，步骤如下：</p>
+\end{cases}</script><p>$x_1$、$x_2$、$x_3$称为<strong>决策变量</strong>，$f(x)$称为<strong>目标函数</strong>，$s.t.$称为<strong>约束条件</strong>，这是线性规划问题的三个关键因素。在数学建模中，我们需要在具体问题中抽象出这三个关键因素，并分析它们的属性，步骤如下：</p>
 <ul>
 <li>找到决策变量。判断它们是连续的还是离散的。</li>
 <li>写出目标函数。这通常是问题所在，如最大利润，最小成本。目标函数的自变量为决策变量。</li>
 <li>分析约束条件。约束条件指的是对单个决策变量的约束和对多个决策变量的关系进行约束。</li>
 </ul>
-<h1 id="pulp库求解过程">PuLP库求解过程</h1>
-<p>python中的Pulp求解以上问题。以上述问题为例，详细介绍一下利用pulp库求解线性规划问题的详细步骤：</p>
-<h3 id="定义规划问题">定义规划问题</h3>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LpProb = pulp.LpProblem(name = <span class="string">&#x27;LpProb&#x27;</span>, sense = pulp.LpMaximize)</span><br></pre></td></tr></table></figure>
+<h1 id="PuLP库求解过程"><a href="#PuLP库求解过程" class="headerlink" title="PuLP库求解过程"></a>PuLP库求解过程</h1><p>python中的Pulp求解以上问题。以上述问题为例，详细介绍一下利用pulp库求解线性规划问题的详细步骤：</p>
+<h3 id="定义规划问题"><a href="#定义规划问题" class="headerlink" title="定义规划问题"></a>定义规划问题</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LpProb = pulp.LpProblem(name = <span class="string">&#x27;LpProb&#x27;</span>, sense = pulp.LpMaximize)</span><br></pre></td></tr></table></figure>
 <p><code>pulp.LpProblem()</code>有两个参数：</p>
 <ul>
 <li><code>name</code>：该问题的名字。</li>
 <li><code>sense</code>：指定待解决的问题的类型。<code>pulp.LpMaximise</code>为求目标函数的最大值，<code>pulp.LpMinimize</code>为求目标函数的最小值。</li>
 </ul>
-<h3 id="定义决策变量">定义决策变量</h3>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x1 = pulp.LpVariable(<span class="string">&#x27;x1&#x27;</span>, lowBound = <span class="number">0</span>, upBound = <span class="number">7</span>, cat = <span class="string">&#x27;Continuous&#x27;</span>)</span><br><span class="line">x2 = pulp.LpVariable(<span class="string">&#x27;x2&#x27;</span>, lowBound = <span class="number">0</span>, upBound = <span class="number">7</span>, cat = <span class="string">&#x27;Continuous&#x27;</span>)</span><br><span class="line">x3 = pulp.LpVariable(<span class="string">&#x27;x3&#x27;</span>, lowBound = <span class="number">0</span>, upBound = <span class="number">7</span>, cat = <span class="string">&#x27;Continuous&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="定义决策变量"><a href="#定义决策变量" class="headerlink" title="定义决策变量"></a>定义决策变量</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x1 = pulp.LpVariable(<span class="string">&#x27;x1&#x27;</span>, lowBound = <span class="number">0</span>, upBound = <span class="number">7</span>, cat = <span class="string">&#x27;Continuous&#x27;</span>)</span><br><span class="line">x2 = pulp.LpVariable(<span class="string">&#x27;x2&#x27;</span>, lowBound = <span class="number">0</span>, upBound = <span class="number">7</span>, cat = <span class="string">&#x27;Continuous&#x27;</span>)</span><br><span class="line">x3 = pulp.LpVariable(<span class="string">&#x27;x3&#x27;</span>, lowBound = <span class="number">0</span>, upBound = <span class="number">7</span>, cat = <span class="string">&#x27;Continuous&#x27;</span>)</span><br></pre></td></tr></table></figure>
 <p>利用<code>pulp.LpVariable()</code>函数创建问题的决策变量。它有五个参数：</p>
 <ul>
 <li><code>name</code>：变量名，在<code>.lp</code>输出文件中将被用到</li>
 <li><code>lowB</code>ound：变量的下限，默认为<code>none</code>，代表负无穷</li>
 <li><code>upBound</code>：变量的上限，默认为<code>none</code>，代表正无穷</li>
-<li><code>cat</code>：设定决策变量的类型，默认为<code>'Continuous'</code>，表示变量是连续的。另外还有<code>'Interger'</code>表示变量是离散的，此时该变量的取值只能为整数；<code>'Binary'</code>表示这是一个二值变量，变量只能为<span
-class="math inline">\(0/1\)</span></li>
+<li><code>cat</code>：设定决策变量的类型，默认为<code>&#39;Continuous&#39;</code>，表示变量是连续的。另外还有<code>&#39;Interger&#39;</code>表示变量是离散的，此时该变量的取值只能为整数；<code>&#39;Binary&#39;</code>表示这是一个二值变量，变量只能为$0/1$</li>
 <li><code>e</code>：指明该决策变量是否在目标函数和约束条件中存在，这里暂时不需要设置该参数</li>
 </ul>
-<p>因此，本题我们定义了三个决策变量<span
-class="math inline">\(x_1\)</span>、<span
-class="math inline">\(x_2\)</span>、<span
-class="math inline">\(x_3\)</span>，它们下限均为<span
-class="math inline">\(0\)</span>，上限均为<span
-class="math inline">\(7\)</span>，且均为连续型变量。</p>
-<h3 id="定义目标函数">定义目标函数</h3>
-<p>目标函数就是f(x)，添加目标函数的格式为：<strong>问题变量 +=
-目标函数表达式</strong></p>
+<p>因此，本题我们定义了三个决策变量$x_1$、$x_2$、$x_3$，它们下限均为$0$，上限均为$7$，且均为连续型变量。</p>
+<h3 id="定义目标函数"><a href="#定义目标函数" class="headerlink" title="定义目标函数"></a>定义目标函数</h3><p>目标函数就是f(x)，添加目标函数的格式为：<strong>问题变量 += 目标函数表达式</strong> </p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LpProb += <span class="number">2</span>*x1 + <span class="number">3</span>*x2 - <span class="number">5</span>*x3</span><br></pre></td></tr></table></figure>
-<h3 id="定义约束条件">定义约束条件</h3>
-<p>定义约束条件的格式与定义目标函数的格式类似，但是约束条件式均为等式或不等式：<strong>问题变量
-+= 约束条件式</strong></p>
+<h3 id="定义约束条件"><a href="#定义约束条件" class="headerlink" title="定义约束条件"></a>定义约束条件</h3><p>定义约束条件的格式与定义目标函数的格式类似，但是约束条件式均为等式或不等式：<strong>问题变量 += 约束条件式</strong></p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LpProb += <span class="number">2</span>*x1 - <span class="number">5</span>*x2 + x3 &gt;= <span class="number">10</span></span><br><span class="line">LpProb += x1 + <span class="number">3</span>*x2 + x3 &lt;= <span class="number">12</span></span><br><span class="line">LpProb += x1 + x2 + x3 == <span class="number">7</span></span><br></pre></td></tr></table></figure>
-<h3 id="求解">求解</h3>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LpProb.solve()</span><br></pre></td></tr></table></figure>
+<h3 id="求解"><a href="#求解" class="headerlink" title="求解"></a>求解</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LpProb.solve()</span><br></pre></td></tr></table></figure>
 <p><code>solve()</code>参数可以指定PuLP进行求解时使用的求解器，默认为CBC。也可以用其它求解器，如<code>solve(CPLEX())</code></p>
-<h3 id="输出结果">输出结果</h3>
-<p>仅仅调用<code>solve()</code>函数求解还不够，我们还要知道该问题是否有解，最后的结果是多少</p>
+<h3 id="输出结果"><a href="#输出结果" class="headerlink" title="输出结果"></a>输出结果</h3><p>仅仅调用<code>solve()</code>函数求解还不够，我们还要知道该问题是否有解，最后的结果是多少</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="string">&quot;status:&quot;</span>, pulp.LpStatus[LpProb.status])</span><br><span class="line"><span class="keyword">for</span> v <span class="keyword">in</span> LpProb.variables():</span><br><span class="line">    <span class="built_in">print</span>(v.name, <span class="string">&quot;=&quot;</span>, v.varValue)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;F(x) = &#x27;</span>, pulp.value(LpProb.objective))</span><br></pre></td></tr></table></figure>
-<p>首先请求解决方案的状态，可以是“Not Solved（未解决）”,
-“Infeasible（不可行）”, “Unbounded（无界）”, “Undefined（未定义）” 和
-“Optimal（最优解）”。<strong><code>LpStatus</code>是一个字典类型</strong>。</p>
+<p>首先请求解决方案的状态，可以是“Not Solved（未解决）”, “Infeasible（不可行）”, “Unbounded（无界）”, “Undefined（未定义）” 和 “Optimal（最优解）”。<strong><code>LpStatus</code>是一个字典类型</strong>。</p>
 <p>其次需要将每个决策变量的值都打印出来，<code>variables()</code>将返回一个列表，遍历打印每一个变量名与变量值。</p>
 <p>最后打印目标函数的最优值。</p>
-<h3 id="算法步骤">算法步骤</h3>
-<p>综上，利用PuLP求解一般的线性规划问题步骤总结如下：</p>
-<ol type="1">
+<h3 id="算法步骤"><a href="#算法步骤" class="headerlink" title="算法步骤"></a>算法步骤</h3><p>综上，利用PuLP求解一般的线性规划问题步骤总结如下：</p>
+<ol>
 <li>使用<code>pulp.LpProblem()</code>创建问题实例</li>
 <li>使用<code>pulp.LpVariable()</code>定义决策变量</li>
 <li><code>LpProb += 表达式</code>设置目标函数</li>
@@ -339,81 +314,71 @@ class="math inline">\(7\)</span>，且均为连续型变量。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 导入import库</span></span><br><span class="line"><span class="keyword">import</span> pulp</span><br><span class="line"><span class="comment"># 定义一个规划问题</span></span><br><span class="line">LpProb = pulp.LpProblem(<span class="string">&quot;LPProbDemo1&quot;</span>, sense = pulp.LpMaximize)</span><br><span class="line"><span class="comment"># 定义决策变量</span></span><br><span class="line">x1 = pulp.LpVariable(<span class="string">&#x27;x1&#x27;</span>, lowBound = <span class="number">0</span>, upBound = <span class="number">7</span>, cat = <span class="string">&#x27;Continuous&#x27;</span>)</span><br><span class="line">x2 = pulp.LpVariable(<span class="string">&#x27;x2&#x27;</span>, lowBound = <span class="number">0</span>, upBound = <span class="number">7</span>, cat = <span class="string">&#x27;Continuous&#x27;</span>)</span><br><span class="line">x3 = pulp.LpVariable(<span class="string">&#x27;x3&#x27;</span>, lowBound = <span class="number">0</span>, upBound = <span class="number">7</span>, cat = <span class="string">&#x27;Continuous&#x27;</span>)</span><br><span class="line"><span class="comment"># 添加目标函数</span></span><br><span class="line">LpProb += <span class="number">2</span>*x1 + <span class="number">3</span>*x2 - <span class="number">5</span>*x3</span><br><span class="line"><span class="comment"># 添加约束函数</span></span><br><span class="line">LpProb += <span class="number">2</span>*x1 - <span class="number">5</span>*x2 + x3 &gt;= <span class="number">10</span></span><br><span class="line">LpProb += x1 + <span class="number">3</span>*x2 + x3 &lt;= <span class="number">12</span></span><br><span class="line">LpProb += x1 + x2 + x3 == <span class="number">7</span></span><br><span class="line"><span class="comment"># 求解</span></span><br><span class="line">LpProb.solve()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;status:&quot;</span>, pulp.LpStatus[LpProb.status])</span><br><span class="line"><span class="keyword">for</span> v <span class="keyword">in</span> LpProb.variables():</span><br><span class="line">    <span class="built_in">print</span>(v.name, <span class="string">&quot;=&quot;</span>, v.varValue)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;F(x) = &#x27;</span>, pulp.value(LpProb.objective))</span><br></pre></td></tr></table></figure>
 <p>结果如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">status: Optimal</span><br><span class="line">x1 = 6.4285714</span><br><span class="line">x2 = 0.57142857</span><br><span class="line">x3 = 0.0</span><br><span class="line">F(x) =  14.57142851</span><br></pre></td></tr></table></figure>
-<h1 id="应用案例">应用案例</h1>
-<p>以上介绍了PuLP求解线性规划问题的基本方法，下面介绍几个应用案例。</p>
-<h2 id="混合问题">混合问题</h2>
-<h3 id="问题描述">问题描述</h3>
-<p><em>Uncle
-Ben’s</em>希望尽可能便宜地生产他们的猫粮产品，同时确保它们符合罐头上显示的营养分析要求。因此，他们希望改变每种成分（主要成分是鸡肉，牛肉，羊肉，大米，小麦和凝胶）的数量，同时仍然符合他们的营养标准。鸡肉，牛肉和羊肉的成本分别为0.013美元，0.008美元和0.010美元，而大米，小麦和凝胶的成本分别为0.002美元，0.005美元和0.001美元。<strong>（所有费用均为每克。）</strong></p>
+<h1 id="应用案例"><a href="#应用案例" class="headerlink" title="应用案例"></a>应用案例</h1><p>以上介绍了PuLP求解线性规划问题的基本方法，下面介绍几个应用案例。</p>
+<h2 id="混合问题"><a href="#混合问题" class="headerlink" title="混合问题"></a>混合问题</h2><h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p><em>Uncle Ben’s</em>希望尽可能便宜地生产他们的猫粮产品，同时确保它们符合罐头上显示的营养分析要求。因此，他们希望改变每种成分（主要成分是鸡肉，牛肉，羊肉，大米，小麦和凝胶）的数量，同时仍然符合他们的营养标准。鸡肉，牛肉和羊肉的成本分别为0.013美元，0.008美元和0.010美元，而大米，小麦和凝胶的成本分别为0.002美元，0.005美元和0.001美元。<strong>（所有费用均为每克。）</strong></p>
 <p>每种成分将组成最终产品中蛋白质，脂肪，纤维和盐的总重量。每克成分的贡献（以克为单位）如下表所示。</p>
+<div class="table-container">
 <table>
 <thead>
-<tr class="header">
-<th style="text-align: center;">东西</th>
-<th style="text-align: center;">蛋白</th>
-<th style="text-align: center;">脂肪</th>
-<th style="text-align: center;">纤维</th>
-<th style="text-align: center;">盐</th>
+<tr>
+<th style="text-align:center">东西</th>
+<th style="text-align:center">蛋白</th>
+<th style="text-align:center">脂肪</th>
+<th style="text-align:center">纤维</th>
+<th style="text-align:center">盐</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td style="text-align: center;">鸡</td>
-<td style="text-align: center;">0.100</td>
-<td style="text-align: center;">0.080</td>
-<td style="text-align: center;">0.001</td>
-<td style="text-align: center;">0.002</td>
+<tr>
+<td style="text-align:center">鸡</td>
+<td style="text-align:center">0.100</td>
+<td style="text-align:center">0.080</td>
+<td style="text-align:center">0.001</td>
+<td style="text-align:center">0.002</td>
 </tr>
-<tr class="even">
-<td style="text-align: center;">牛肉</td>
-<td style="text-align: center;">0.200</td>
-<td style="text-align: center;">0.100</td>
-<td style="text-align: center;">0.005</td>
-<td style="text-align: center;">0.005</td>
+<tr>
+<td style="text-align:center">牛肉</td>
+<td style="text-align:center">0.200</td>
+<td style="text-align:center">0.100</td>
+<td style="text-align:center">0.005</td>
+<td style="text-align:center">0.005</td>
 </tr>
-<tr class="odd">
-<td style="text-align: center;">羊肉</td>
-<td style="text-align: center;">0.150</td>
-<td style="text-align: center;">0.110</td>
-<td style="text-align: center;">0.003</td>
-<td style="text-align: center;">0.007</td>
+<tr>
+<td style="text-align:center">羊肉</td>
+<td style="text-align:center">0.150</td>
+<td style="text-align:center">0.110</td>
+<td style="text-align:center">0.003</td>
+<td style="text-align:center">0.007</td>
 </tr>
-<tr class="even">
-<td style="text-align: center;">米饭</td>
-<td style="text-align: center;">0.000</td>
-<td style="text-align: center;">0.010</td>
-<td style="text-align: center;">0.100</td>
-<td style="text-align: center;">0.002</td>
+<tr>
+<td style="text-align:center">米饭</td>
+<td style="text-align:center">0.000</td>
+<td style="text-align:center">0.010</td>
+<td style="text-align:center">0.100</td>
+<td style="text-align:center">0.002</td>
 </tr>
-<tr class="odd">
-<td style="text-align: center;">麦麸</td>
-<td style="text-align: center;">0.040</td>
-<td style="text-align: center;">0.010</td>
-<td style="text-align: center;">0.150</td>
-<td style="text-align: center;">0.008</td>
+<tr>
+<td style="text-align:center">麦麸</td>
+<td style="text-align:center">0.040</td>
+<td style="text-align:center">0.010</td>
+<td style="text-align:center">0.150</td>
+<td style="text-align:center">0.008</td>
 </tr>
-<tr class="even">
-<td style="text-align: center;">凝胶</td>
-<td style="text-align: center;">0.000</td>
-<td style="text-align: center;">0.000</td>
-<td style="text-align: center;">0.000</td>
-<td style="text-align: center;">0.000</td>
+<tr>
+<td style="text-align:center">凝胶</td>
+<td style="text-align:center">0.000</td>
+<td style="text-align:center">0.000</td>
+<td style="text-align:center">0.000</td>
+<td style="text-align:center">0.000</td>
 </tr>
 </tbody>
 </table>
+</div>
 <p>为了满足营养分析要求，我们需要每100克至少含有8克蛋白质，6克脂肪，但不超过2克纤维和0.4克盐，请问满足营养要求的最小成本开销是多少？</p>
-<h3 id="解题过程">解题过程</h3>
-<p>首先要从问题中分析出决策变量、目标函数和约束条件。</p>
-<p>设鸡肉、牛肉、羊肉、米饭、麦麸和凝胶的质量分别为<span
-class="math inline">\(x_1\)</span>、<span
-class="math inline">\(x_2\)</span>、<span
-class="math inline">\(x_3\)</span>、<span
-class="math inline">\(x_4\)</span>、<span
-class="math inline">\(x_5\)</span>、<span
-class="math inline">\(x_6\)</span>克，那么目标函数和约束条件如下： <span
-class="math display">\[
-\min \ f(x) = 0.013x_1 + 0.008x_2 + 0.010x_3 + 0.002x_4 + 0.005x_5 +
-0.001x_6\\
+<h3 id="解题过程"><a href="#解题过程" class="headerlink" title="解题过程"></a>解题过程</h3><p>首先要从问题中分析出决策变量、目标函数和约束条件。</p>
+<p>设鸡肉、牛肉、羊肉、米饭、麦麸和凝胶的质量分别为$x_1$、$x_2$、$x_3$、$x_4$、$x_5$、$x_6$克，那么目标函数和约束条件如下：</p>
+<script type="math/tex; mode=display">
+\min \ f(x) = 0.013x_1 + 0.008x_2 + 0.010x_3 + 0.002x_4 + 0.005x_5 + 0.001x_6\\
 s.t.
 \begin{cases}
 x_1 + x_2 + x_3 + x_4 + x_5 + x_6=100\\
@@ -421,18 +386,14 @@ x_1 + x_2 + x_3 + x_4 + x_5 + x_6=100\\
 0.080x_1 + 0.100x_2 + 0.110x_3 + 0.010x_4 + 0.010x_5 \geq 6\\
 0.001x_1 + 0.005x_2 + 0.003x_3 + 0.100x_4 + 0.150x_5 \leq 2\\
 0.002x_1 + 0.005x_2 + 0.007x_3 + 0.002x_4 + 0.008x_5 \leq 0.4\\
-\end{cases}
-\]</span></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pulp <span class="keyword">import</span> *</span><br><span class="line"><span class="comment"># 定义问题</span></span><br><span class="line">blendLp = LpProblem(<span class="string">&#x27;混合问题&#x27;</span>, LpMinimize)</span><br><span class="line"><span class="comment"># 定义约束变量</span></span><br><span class="line">x1 = LpVariable(<span class="string">&#x27;x1&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line">x2 = LpVariable(<span class="string">&#x27;x2&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line">x3 = LpVariable(<span class="string">&#x27;x3&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line">x4 = LpVariable(<span class="string">&#x27;x4&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line">x5 = LpVariable(<span class="string">&#x27;x5&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line">x6 = LpVariable(<span class="string">&#x27;x6&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line"><span class="comment"># 设置目标函数</span></span><br><span class="line">blendLp += <span class="number">0.013</span>*x1 + <span class="number">0.008</span>*x2 + <span class="number">0.01</span>*x3 + <span class="number">0.002</span>*x4 + <span class="number">0.005</span>*x5 + <span class="number">0.001</span>*x6</span><br><span class="line"><span class="comment"># 设置约束条件</span></span><br><span class="line">blendLp += x1 + x2 + x3 + x4 + x5 + x6 == <span class="number">100</span></span><br><span class="line">blendLp += <span class="number">0.100</span>*x1 + <span class="number">0.200</span>*x2 + <span class="number">0.150</span>*x3 + <span class="number">0.040</span>*x5 &gt;= <span class="number">8</span></span><br><span class="line">blendLp += <span class="number">0.080</span>*x1 + <span class="number">0.100</span>*x2 + <span class="number">0.110</span>*x3 + <span class="number">0.010</span>*x4 + <span class="number">0.010</span>*x5 &gt;= <span class="number">6</span></span><br><span class="line">blendLp += <span class="number">0.001</span>*x1 + <span class="number">0.005</span>*x2 + <span class="number">0.003</span>*x3 + <span class="number">0.100</span>*x4 + <span class="number">0.150</span>*x5 &lt;= <span class="number">2</span></span><br><span class="line">blendLp += <span class="number">0.002</span>*x1 + <span class="number">0.005</span>*x2 + <span class="number">0.007</span>*x3 + <span class="number">0.002</span>*x4 + <span class="number">0.008</span>*x5 &lt;=<span class="number">0.4</span></span><br><span class="line"><span class="comment"># 求解</span></span><br><span class="line">blendLp.solve()</span><br><span class="line"><span class="comment"># 打印求解结果</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;status: &#x27;</span>, LpStatus[blendLp.status])</span><br><span class="line"><span class="keyword">for</span> v <span class="keyword">in</span> blendLp.variables():</span><br><span class="line">    <span class="built_in">print</span>(v.name, <span class="string">&quot;=&quot;</span>, v.varValue)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;min = &#x27;</span>, value(blendLp.objective))</span><br></pre></td></tr></table></figure>
+\end{cases}</script><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pulp <span class="keyword">import</span> *</span><br><span class="line"><span class="comment"># 定义问题</span></span><br><span class="line">blendLp = LpProblem(<span class="string">&#x27;混合问题&#x27;</span>, LpMinimize)</span><br><span class="line"><span class="comment"># 定义约束变量</span></span><br><span class="line">x1 = LpVariable(<span class="string">&#x27;x1&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line">x2 = LpVariable(<span class="string">&#x27;x2&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line">x3 = LpVariable(<span class="string">&#x27;x3&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line">x4 = LpVariable(<span class="string">&#x27;x4&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line">x5 = LpVariable(<span class="string">&#x27;x5&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line">x6 = LpVariable(<span class="string">&#x27;x6&#x27;</span>, <span class="number">0</span>, <span class="literal">None</span>, LpContinuous)</span><br><span class="line"><span class="comment"># 设置目标函数</span></span><br><span class="line">blendLp += <span class="number">0.013</span>*x1 + <span class="number">0.008</span>*x2 + <span class="number">0.01</span>*x3 + <span class="number">0.002</span>*x4 + <span class="number">0.005</span>*x5 + <span class="number">0.001</span>*x6</span><br><span class="line"><span class="comment"># 设置约束条件</span></span><br><span class="line">blendLp += x1 + x2 + x3 + x4 + x5 + x6 == <span class="number">100</span></span><br><span class="line">blendLp += <span class="number">0.100</span>*x1 + <span class="number">0.200</span>*x2 + <span class="number">0.150</span>*x3 + <span class="number">0.040</span>*x5 &gt;= <span class="number">8</span></span><br><span class="line">blendLp += <span class="number">0.080</span>*x1 + <span class="number">0.100</span>*x2 + <span class="number">0.110</span>*x3 + <span class="number">0.010</span>*x4 + <span class="number">0.010</span>*x5 &gt;= <span class="number">6</span></span><br><span class="line">blendLp += <span class="number">0.001</span>*x1 + <span class="number">0.005</span>*x2 + <span class="number">0.003</span>*x3 + <span class="number">0.100</span>*x4 + <span class="number">0.150</span>*x5 &lt;= <span class="number">2</span></span><br><span class="line">blendLp += <span class="number">0.002</span>*x1 + <span class="number">0.005</span>*x2 + <span class="number">0.007</span>*x3 + <span class="number">0.002</span>*x4 + <span class="number">0.008</span>*x5 &lt;=<span class="number">0.4</span></span><br><span class="line"><span class="comment"># 求解</span></span><br><span class="line">blendLp.solve()</span><br><span class="line"><span class="comment"># 打印求解结果</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;status: &#x27;</span>, LpStatus[blendLp.status])</span><br><span class="line"><span class="keyword">for</span> v <span class="keyword">in</span> blendLp.variables():</span><br><span class="line">    <span class="built_in">print</span>(v.name, <span class="string">&quot;=&quot;</span>, v.varValue)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;min = &#x27;</span>, value(blendLp.objective))</span><br></pre></td></tr></table></figure>
 <p>当决策变量与约束条件较多时，使用字典更规范，也更易于修改</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">Ingerdient = [<span class="string">&#x27;chicken&#x27;</span>, <span class="string">&#x27;beef&#x27;</span>, <span class="string">&#x27;mutton&#x27;</span>, <span class="string">&#x27;rice&#x27;</span>, <span class="string">&#x27;wheat&#x27;</span>, <span class="string">&#x27;gel&#x27;</span>]</span><br><span class="line">    cost = &#123;</span><br><span class="line">    <span class="string">&#x27;chicken&#x27;</span> : <span class="number">0.013</span>,</span><br><span class="line">    <span class="string">&#x27;beef&#x27;</span> : <span class="number">0.008</span>,</span><br><span class="line">    <span class="string">&#x27;mutton&#x27;</span> : <span class="number">0.01</span>,</span><br><span class="line">    <span class="string">&#x27;rice&#x27;</span> : <span class="number">0.002</span>,</span><br><span class="line">    <span class="string">&#x27;wheat&#x27;</span> : <span class="number">0.04</span>,</span><br><span class="line">    <span class="string">&#x27;gel&#x27;</span> : <span class="number">0.001</span></span><br><span class="line">    &#125;</span><br><span class="line">    protein = &#123;</span><br><span class="line">    <span class="string">&#x27;chicken&#x27;</span> : <span class="number">0.1</span>,</span><br><span class="line">    <span class="string">&#x27;beef&#x27;</span> : <span class="number">0.2</span>,</span><br><span class="line">    <span class="string">&#x27;mutton&#x27;</span> : <span class="number">0.15</span>,</span><br><span class="line">    <span class="string">&#x27;rice&#x27;</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="string">&#x27;wheat&#x27;</span> : <span class="number">0.04</span>,</span><br><span class="line">    <span class="string">&#x27;gel&#x27;</span> : <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">    fat = &#123;</span><br><span class="line">    <span class="string">&#x27;chicken&#x27;</span> : <span class="number">0.08</span>,</span><br><span class="line">    <span class="string">&#x27;beef&#x27;</span> : <span class="number">0.1</span>,</span><br><span class="line">    <span class="string">&#x27;mutton&#x27;</span> : <span class="number">0.11</span>,</span><br><span class="line">    <span class="string">&#x27;rice&#x27;</span> : <span class="number">0.01</span>,</span><br><span class="line">    <span class="string">&#x27;wheat&#x27;</span> : <span class="number">0.01</span>,</span><br><span class="line">    <span class="string">&#x27;gel&#x27;</span> : <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">    fibre = &#123;</span><br><span class="line">    <span class="string">&#x27;chicken&#x27;</span> : <span class="number">0.001</span>,</span><br><span class="line">    <span class="string">&#x27;beef&#x27;</span> : <span class="number">0.005</span>,</span><br><span class="line">    <span class="string">&#x27;mutton&#x27;</span> : <span class="number">0.003</span>,</span><br><span class="line">    <span class="string">&#x27;rice&#x27;</span> : <span class="number">0.1</span>,</span><br><span class="line">    <span class="string">&#x27;wheat&#x27;</span> : <span class="number">0.15</span>,</span><br><span class="line">    <span class="string">&#x27;gel&#x27;</span> : <span class="number">0</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    salt = &#123;</span><br><span class="line">    <span class="string">&#x27;chicken&#x27;</span> : <span class="number">0.002</span>,</span><br><span class="line">    <span class="string">&#x27;beef&#x27;</span> : <span class="number">0.005</span>,</span><br><span class="line">    <span class="string">&#x27;mutton&#x27;</span> : <span class="number">0.007</span>,</span><br><span class="line">    <span class="string">&#x27;rice&#x27;</span> : <span class="number">0.002</span>,</span><br><span class="line">    <span class="string">&#x27;wheat&#x27;</span> : <span class="number">0.008</span>,</span><br><span class="line">    <span class="string">&#x27;gel&#x27;</span> : <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">    blendLp = LpProblem(<span class="string">&quot;混合问题&quot;</span>, LpMinimize)</span><br><span class="line">    varsLp = LpVariable.<span class="built_in">dict</span>(<span class="string">&#x27;Ingerdient&#x27;</span>, Ingerdient, <span class="number">0</span>)</span><br><span class="line">    blendLp += (lpSum([cost[i] * varsLp[i] <span class="keyword">for</span> i <span class="keyword">in</span> Ingerdient]), </span><br><span class="line">        <span class="string">&quot;total cost of Ingerdient per can&quot;</span>)</span><br><span class="line">    blendLp += (lpSum([varsLp[i] <span class="keyword">for</span> i <span class="keyword">in</span> Ingerdient]) == <span class="number">100</span>, <span class="string">&quot;PercentagesSum&quot;</span>)</span><br><span class="line">    blendLp += (lpSum([varsLp[i] * protein[i] <span class="keyword">for</span> i <span class="keyword">in</span> Ingerdient]) &gt;= <span class="number">8</span>, <span class="string">&quot;ProteinRequirement&quot;</span>)</span><br><span class="line">    blendLp += (lpSum([varsLp[i] * fat[i] <span class="keyword">for</span> i <span class="keyword">in</span> Ingerdient]) &gt;= <span class="number">6</span>, <span class="string">&quot;FatRequirement&quot;</span>)</span><br><span class="line">    blendLp += (lpSum([varsLp[i] * fibre[i] <span class="keyword">for</span> i <span class="keyword">in</span> Ingerdient]) &lt;= <span class="number">2</span>, <span class="string">&quot;FibreRequirement&quot;</span>)</span><br><span class="line">    blendLp += (lpSum([varsLp[i] * salt[i] <span class="keyword">for</span> i <span class="keyword">in</span> Ingerdient]) &lt;=<span class="number">4</span>, <span class="string">&quot;saltRequirement&quot;</span> )</span><br><span class="line">    blendLp.solve()</span><br></pre></td></tr></table></figure>
-<h2 id="规划">0-1规划</h2>
-<h3 id="问题描述-1">问题描述</h3>
-<p>公司有 5
-个项目被列入投资计划，各项目的投资额和预期投资收益如下表所示（万元）：</p>
+<h2 id="0-1规划"><a href="#0-1规划" class="headerlink" title="0-1规划"></a>0-1规划</h2><h3 id="问题描述-1"><a href="#问题描述-1" class="headerlink" title="问题描述"></a>问题描述</h3><p>公司有 5 个项目被列入投资计划，各项目的投资额和预期投资收益如下表所示（万元）：</p>
+<div class="table-container">
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th>项目</th>
 <th>A</th>
 <th>B</th>
@@ -442,7 +403,7 @@ x_1 + x_2 + x_3 + x_4 + x_5 + x_6=100\\
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>投资额</td>
 <td>210</td>
 <td>300</td>
@@ -450,7 +411,7 @@ x_1 + x_2 + x_3 + x_4 + x_5 + x_6=100\\
 <td>130</td>
 <td>260</td>
 </tr>
-<tr class="even">
+<tr>
 <td>投资收益</td>
 <td>150</td>
 <td>210</td>
@@ -460,18 +421,13 @@ x_1 + x_2 + x_3 + x_4 + x_5 + x_6=100\\
 </tr>
 </tbody>
 </table>
+</div>
 <p>公司只有 600万元资金可用于投资，综合考虑各方面因素，需要保证：</p>
-<p>（1）项目 A、B、C 中必须且只能有一项被选中； （2）项目 C、D
-中最多只能选中一项； （3）选择项目 E 的前提是项目 A被选中。</p>
+<p>（1）项目 A、B、C 中必须且只能有一项被选中；<br>（2）项目 C、D 中最多只能选中一项；<br>（3）选择项目 E 的前提是项目 A被选中。</p>
 <p>如何在上述条件下，进行投资决策，使收益最大。</p>
-<h3 id="解题过程-1">解题过程</h3>
-<p>定义决策变量：定义五个二值变量<span
-class="math inline">\(x_1\)</span>、<span
-class="math inline">\(x_2\)</span>、<span
-class="math inline">\(x_3\)</span>、<span
-class="math inline">\(x_4\)</span>、<span
-class="math inline">\(x_5\)</span>，表示每个项目是否被选中，被选中则为1，未被选中则为0.</p>
-<p>目标函数和约束条件如下： <span class="math display">\[
+<h3 id="解题过程-1"><a href="#解题过程-1" class="headerlink" title="解题过程"></a>解题过程</h3><p>定义决策变量：定义五个二值变量$x_1$、$x_2$、$x_3$、$x_4$、$x_5$，表示每个项目是否被选中，被选中则为1，未被选中则为0.</p>
+<p>目标函数和约束条件如下：</p>
+<script type="math/tex; mode=display">
 \max \ F=150x_1 + 210x_2 + 60x_3 + 80x_4 + 180x_5\\
 s.t.
 \begin{cases}
@@ -479,35 +435,21 @@ s.t.
 x_1 + x_2 + x_3 = 1\\
 x_3 + x_4 \leq1\\
 x_5 \leq x_1
-\end{cases}
-\]</span> 代码如下</p>
+\end{cases}</script><p>代码如下</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">prob = LpProblem(<span class="string">&quot;0-1规划&quot;</span>, LpMaximize)</span><br><span class="line">x1 = LpVariable(<span class="string">&#x27;A&#x27;</span>, cat = <span class="string">&#x27;Binary&#x27;</span>)</span><br><span class="line">x2 = LpVariable(<span class="string">&#x27;B&#x27;</span>, cat = <span class="string">&#x27;Binary&#x27;</span>)</span><br><span class="line">x3 = LpVariable(<span class="string">&#x27;C&#x27;</span>, cat = <span class="string">&#x27;Binary&#x27;</span>)</span><br><span class="line">x4 = LpVariable(<span class="string">&#x27;D&#x27;</span>, cat = <span class="string">&#x27;Binary&#x27;</span>)</span><br><span class="line">x5 = LpVariable(<span class="string">&#x27;E&#x27;</span>, cat = <span class="string">&#x27;Binary&#x27;</span>)</span><br><span class="line">prob += <span class="number">150</span>*x1 + <span class="number">210</span>*x2 + <span class="number">60</span>*x3 + <span class="number">80</span>*x4 + <span class="number">180</span>*x5</span><br><span class="line">prob += <span class="number">210</span>*x1 + <span class="number">300</span>*x2 + <span class="number">100</span>*x3 + <span class="number">130</span>*x4 + <span class="number">260</span>*x5 &lt;= <span class="number">600</span></span><br><span class="line">prob += x1 + x2 + x3 == <span class="number">1</span></span><br><span class="line">prob += x3 + x4 &lt;= <span class="number">1</span></span><br><span class="line">prob += x1 - x5 &lt;= <span class="number">0</span></span><br><span class="line">prob.solve()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;status: &quot;</span>, LpStatus[prob.status])</span><br><span class="line"><span class="keyword">for</span> v <span class="keyword">in</span> prob.variables():</span><br><span class="line">    <span class="built_in">print</span>(v.name, <span class="string">&quot;=&quot;</span>, v.varValue)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;max = &quot;</span>, value(prob.objective))</span><br></pre></td></tr></table></figure>
 <p>得到如下结果</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">status:  Optimal</span><br><span class="line">A = 1.0</span><br><span class="line">B = 0.0</span><br><span class="line">C = 0.0</span><br><span class="line">D = 1.0</span><br><span class="line">E = 1.0</span><br><span class="line">max =  410.0</span><br></pre></td></tr></table></figure>
-<h2 id="数独问题">数独问题</h2>
-<h3 id="问题描述-2">问题描述</h3>
-<p>数独的规则为：</p>
+<h2 id="数独问题"><a href="#数独问题" class="headerlink" title="数独问题"></a>数独问题</h2><h3 id="问题描述-2"><a href="#问题描述-2" class="headerlink" title="问题描述"></a>问题描述</h3><p>数独的规则为：</p>
 <ul>
 <li>在9个单独的3x3盒子中的任何一个中，必须找到每个数字1到9。</li>
 <li>在 9x9 网格的任何列中，必须找到每个数字 1 到 9。</li>
 <li>在 9x9 网格的任何一行中，必须找到每个数字 1 到 9。</li>
 </ul>
-<div data-align="center">
-<img src="https://pic.imgdb.cn/item/631a135b16f2c2beb1ad6ca9.png">
-</div>
-<h3 id="解题过程-2">解题过程</h3>
-<p>问题的关键在于寻找决策变量。</p>
-<p>最容易想到的方法是每一个单元设置一个变量，代表要填入的数，这样需要设置81个决策变量。但是这样无法设置约束条件，即同一行同一列和同一<span
-class="math inline">\(3x3\)</span>的盒子中不能有相同值。</p>
-<p>这里，我们创建 729 个单独的二进制 （0-1）
-决策变量，表示9x9网格中每个单元的9种取值情况。每种取值有两种情况，即是（1）和不是（0）。我们用一个三元组表示决策变量，格式为<span
-class="math inline">\((vals, rows, cols)\)</span>，即第<span
-class="math inline">\(rows\)</span>行第<span
-class="math inline">\(cols\)</span>列值是否为<span
-class="math inline">\(val\)</span>。例如<span class="math inline">\((5,
-7, 3)\)</span>表示第7行第3列是否为5，如果是，该变量取值为<span
-class="math inline">\(1\)</span>，否则取值为<span
-class="math inline">\(0\)</span>。</p>
+<div align=center><img src="https://pic.imgdb.cn/item/631a135b16f2c2beb1ad6ca9.png"></div>
+
+<h3 id="解题过程-2"><a href="#解题过程-2" class="headerlink" title="解题过程"></a>解题过程</h3><p>问题的关键在于寻找决策变量。</p>
+<p>最容易想到的方法是每一个单元设置一个变量，代表要填入的数，这样需要设置81个决策变量。但是这样无法设置约束条件，即同一行同一列和同一$3x3$的盒子中不能有相同值。</p>
+<p>这里，我们创建 729 个单独的二进制 （0-1） 决策变量，表示9x9网格中每个单元的9种取值情况。每种取值有两种情况，即是（1）和不是（0）。我们用一个三元组表示决策变量，格式为$(vals, rows, cols)$，即第$rows$行第$cols$列值是否为$val$。例如$(5, 7, 3)$表示第7行第3列是否为5，如果是，该变量取值为$1$，否则取值为$0$。</p>
 <p>另外注意，<strong>该题不需要设置目标函数，因为它并不是求最优解问题，只要满足约束条件，即为一个可行解。</strong></p>
 <p>理解了决策变量的含意后，就很容易设置约束条件了。</p>
 <ul>
@@ -518,82 +460,65 @@ class="math inline">\(0\)</span>。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pulp <span class="keyword">import</span> *</span><br><span class="line"><span class="comment"># 总共有9行9列，每一个单元中可以选择的值有9个</span></span><br><span class="line">vals = rows = cols = <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">10</span>)</span><br><span class="line"><span class="comment">#定义一个问题，不需要设置目标函数，也不需要有第二个参数</span></span><br><span class="line">prob = LpProblem(<span class="string">&quot;数独问题&quot;</span>)</span><br><span class="line"><span class="comment"># 设置决策变量</span></span><br><span class="line">choices = LpVariable.dicts(<span class="string">&quot;choice&quot;</span>, (vals, rows, cols), cat = <span class="string">&#x27;Binary&#x27;</span>)</span><br><span class="line"><span class="comment"># 设置约束条件</span></span><br><span class="line"><span class="comment"># 同一个单元只有一个值</span></span><br><span class="line"><span class="keyword">for</span> r <span class="keyword">in</span> rows:</span><br><span class="line">    <span class="keyword">for</span> c <span class="keyword">in</span> cols:</span><br><span class="line">        prob += lpSum([choices[v][r][c] <span class="keyword">for</span> v <span class="keyword">in</span> vals]) == <span class="number">1</span></span><br><span class="line"><span class="comment"># 同一个值在一行中有且只有一个</span></span><br><span class="line"><span class="keyword">for</span> v <span class="keyword">in</span> vals:</span><br><span class="line">    <span class="keyword">for</span> r <span class="keyword">in</span> rows:</span><br><span class="line">        prob += lpSum([choices[v][r][c] <span class="keyword">for</span> c <span class="keyword">in</span> cols]) == <span class="number">1</span></span><br><span class="line"><span class="comment"># 同一个值在一列中有些只有一个</span></span><br><span class="line"><span class="keyword">for</span> v <span class="keyword">in</span> vals:</span><br><span class="line">    <span class="keyword">for</span> c <span class="keyword">in</span> cols:</span><br><span class="line">        prob += lpSum([choices[v][r][c] <span class="keyword">for</span> r <span class="keyword">in</span> rows]) == <span class="number">1</span></span><br><span class="line"><span class="comment"># 将已知的值填入</span></span><br><span class="line">input_data = [</span><br><span class="line">    (<span class="number">5</span>, <span class="number">1</span>, <span class="number">1</span>),</span><br><span class="line">    (<span class="number">6</span>, <span class="number">2</span>, <span class="number">1</span>),</span><br><span class="line">    (<span class="number">8</span>, <span class="number">4</span>, <span class="number">1</span>),</span><br><span class="line">    (<span class="number">4</span>, <span class="number">5</span>, <span class="number">1</span>),</span><br><span class="line">    (<span class="number">7</span>, <span class="number">6</span>, <span class="number">1</span>),</span><br><span class="line">    (<span class="number">3</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">    (<span class="number">9</span>, <span class="number">3</span>, <span class="number">2</span>),</span><br><span class="line">    (<span class="number">6</span>, <span class="number">7</span>, <span class="number">2</span>),</span><br><span class="line">    (<span class="number">8</span>, <span class="number">3</span>, <span class="number">3</span>),</span><br><span class="line">    (<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>),</span><br><span class="line">    (<span class="number">8</span>, <span class="number">5</span>, <span class="number">4</span>),</span><br><span class="line">    (<span class="number">4</span>, <span class="number">8</span>, <span class="number">4</span>),</span><br><span class="line">    (<span class="number">7</span>, <span class="number">1</span>, <span class="number">5</span>),</span><br><span class="line">    (<span class="number">9</span>, <span class="number">2</span>, <span class="number">5</span>),</span><br><span class="line">    (<span class="number">6</span>, <span class="number">4</span>, <span class="number">5</span>),</span><br><span class="line">    (<span class="number">2</span>, <span class="number">6</span>, <span class="number">5</span>),</span><br><span class="line">    (<span class="number">1</span>, <span class="number">8</span>, <span class="number">5</span>),</span><br><span class="line">    (<span class="number">8</span>, <span class="number">9</span>, <span class="number">5</span>),</span><br><span class="line">    (<span class="number">5</span>, <span class="number">2</span>, <span class="number">6</span>),</span><br><span class="line">    (<span class="number">3</span>, <span class="number">5</span>, <span class="number">6</span>),</span><br><span class="line">    (<span class="number">9</span>, <span class="number">8</span>, <span class="number">6</span>),</span><br><span class="line">    (<span class="number">2</span>, <span class="number">7</span>, <span class="number">7</span>),</span><br><span class="line">    (<span class="number">6</span>, <span class="number">3</span>, <span class="number">8</span>),</span><br><span class="line">    (<span class="number">8</span>, <span class="number">7</span>, <span class="number">8</span>),</span><br><span class="line">    (<span class="number">7</span>, <span class="number">9</span>, <span class="number">8</span>),</span><br><span class="line">    (<span class="number">3</span>, <span class="number">4</span>, <span class="number">9</span>),</span><br><span class="line">    (<span class="number">1</span>, <span class="number">5</span>, <span class="number">9</span>),</span><br><span class="line">    (<span class="number">6</span>, <span class="number">6</span>, <span class="number">9</span>),</span><br><span class="line">    (<span class="number">5</span>, <span class="number">8</span>, <span class="number">9</span>),</span><br><span class="line">]</span><br><span class="line"><span class="keyword">for</span> (v, r, c) <span class="keyword">in</span> input_data:</span><br><span class="line">    prob += choices[v][r][c] == <span class="number">1</span></span><br><span class="line"><span class="comment"># 解决问题</span></span><br><span class="line">prob.solve()</span><br><span class="line"><span class="comment"># 打印结果</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;status: &quot;</span>, LpStatus[prob.status])</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> r <span class="keyword">in</span> rows:</span><br><span class="line">    <span class="keyword">if</span> r <span class="keyword">in</span> [<span class="number">1</span>, <span class="number">4</span>, <span class="number">7</span>]:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;+-------+-------+-------+&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> c <span class="keyword">in</span> cols:</span><br><span class="line">        <span class="keyword">for</span> v <span class="keyword">in</span> vals:</span><br><span class="line">            <span class="keyword">if</span>(value(choices[v][r][c])) == <span class="number">1</span>:</span><br><span class="line">                <span class="keyword">if</span> c <span class="keyword">in</span> [<span class="number">1</span>, <span class="number">4</span>, <span class="number">7</span>]:</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&quot;| &quot;</span>, end = <span class="string">&quot;&quot;</span>)</span><br><span class="line">                <span class="built_in">print</span>(<span class="built_in">str</span>(v) + <span class="string">&quot; &quot;</span>, end=<span class="string">&quot;&quot;</span>)</span><br><span class="line">                <span class="keyword">if</span> c == <span class="number">9</span>:</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&quot;|&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;+-------+-------+-------+&quot;</span>)</span><br></pre></td></tr></table></figure>
 <p>结果如下，答案不止一种。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">status:  Optimal</span><br><span class="line">+-------+-------+-------+</span><br><span class="line">| 5 3 9 | 6 7 2 | 8 1 4 |</span><br><span class="line">| 6 7 3 | 1 9 5 | 4 2 8 |</span><br><span class="line">| 3 9 8 | 7 4 1 | 5 6 2 |</span><br><span class="line">+-------+-------+-------+</span><br><span class="line">| 8 5 2 | 9 6 7 | 1 4 3 |</span><br><span class="line">| 4 2 6 | 8 5 3 | 7 9 1 |</span><br><span class="line">| 7 1 4 | 3 2 8 | 9 5 6 |</span><br><span class="line">+-------+-------+-------+</span><br><span class="line">| 9 6 1 | 5 3 4 | 2 8 7 |</span><br><span class="line">| 2 8 7 | 4 1 9 | 6 3 5 |</span><br><span class="line">| 1 4 5 | 2 8 6 | 3 7 9 |</span><br><span class="line">+-------+-------+-------+</span><br></pre></td></tr></table></figure>
-<h2 id="运输问题">运输问题</h2>
-<h3 id="问题描述-3">问题描述</h3>
-<p>一家啤酒厂有两个仓库，从中将啤酒分发给五个酒吧。在每周开始时，每个酒吧都会向啤酒厂总部发送订单，订购很多箱啤酒，然后从相应的仓库发送到酒吧。啤酒厂希望有一个交互式计算机程序可以告诉他们哪个仓库应该供应哪个酒吧，以最大限度地降低整个运营的成本。例如，假设在给定的一周开始时，啤酒厂在仓库
-A 有 1000 个箱子，在仓库 B 有 4000 个箱子，而条形图分别需要
-500、900、1800、200 和 700 个箱子。哪个仓库应该供应哪个酒吧？</p>
-<div data-align="center">
-<img src="https://pic.imgdb.cn/item/631a13e316f2c2beb1ae1250.jpg">
-</div>
+<h2 id="运输问题"><a href="#运输问题" class="headerlink" title="运输问题"></a>运输问题</h2><h3 id="问题描述-3"><a href="#问题描述-3" class="headerlink" title="问题描述"></a>问题描述</h3><p>一家啤酒厂有两个仓库，从中将啤酒分发给五个酒吧。在每周开始时，每个酒吧都会向啤酒厂总部发送订单，订购很多箱啤酒，然后从相应的仓库发送到酒吧。啤酒厂希望有一个交互式计算机程序可以告诉他们哪个仓库应该供应哪个酒吧，以最大限度地降低整个运营的成本。例如，假设在给定的一周开始时，啤酒厂在仓库 A 有 1000 个箱子，在仓库 B 有 4000 个箱子，而条形图分别需要 500、900、1800、200 和 700 个箱子。哪个仓库应该供应哪个酒吧？</p>
+<div align=center><img src="https://pic.imgdb.cn/item/631a13e316f2c2beb1ae1250.jpg"></div>
+
+
+
 <p>我们假设每个箱子都有固定的运输成本，成本如下（元/箱）</p>
+<div class="table-container">
 <table>
 <thead>
-<tr class="header">
-<th style="text-align: center;">From Warehouse to Bar</th>
-<th style="text-align: center;">A</th>
-<th style="text-align: center;">B</th>
+<tr>
+<th style="text-align:center">From Warehouse to Bar</th>
+<th style="text-align:center">A</th>
+<th style="text-align:center">B</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td style="text-align: center;">1</td>
-<td style="text-align: center;">2</td>
-<td style="text-align: center;">3</td>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">3</td>
 </tr>
-<tr class="even">
-<td style="text-align: center;">2</td>
-<td style="text-align: center;">4</td>
-<td style="text-align: center;">1</td>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">1</td>
 </tr>
-<tr class="odd">
-<td style="text-align: center;">3</td>
-<td style="text-align: center;">5</td>
-<td style="text-align: center;">3</td>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">3</td>
 </tr>
-<tr class="even">
-<td style="text-align: center;">4</td>
-<td style="text-align: center;">2</td>
-<td style="text-align: center;">2</td>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
 </tr>
-<tr class="odd">
-<td style="text-align: center;">5</td>
-<td style="text-align: center;">1</td>
-<td style="text-align: center;">3</td>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">3</td>
 </tr>
 </tbody>
 </table>
-<h3 id="解题过程-3">解题过程</h3>
-决策变量为每一个仓库送到每一个酒吧的箱子个数，<span
-class="math inline">\(A_i\)</span>表示从仓库A运输到酒吧<span
-class="math inline">\(i\)</span>的箱子个数，<span
-class="math inline">\(B_i\)</span>表示从仓库B运输到酒吧<span
-class="math inline">\(i\)</span>的箱子个数，<span
-class="math inline">\(Wa_i\)</span>表示从仓库A运输到酒吧<span
-class="math inline">\(i\)</span>的成本，<span
-class="math inline">\(Wb_i\)</span>表示从仓库B运输到酒吧<span
-class="math inline">\(i\)</span>的成本，<span
-class="math inline">\(D_i\)</span>表示酒吧<span
-class="math inline">\(i\)</span>的需求量 $$  F = _{i=1}^5
-(A_iWa_i+B_iWb_i) \ s.t:
-<span class="math display">\[\begin{cases}
+</div>
+<h3 id="解题过程-3"><a href="#解题过程-3" class="headerlink" title="解题过程"></a>解题过程</h3><p>决策变量为每一个仓库送到每一个酒吧的箱子个数，$A_i$表示从仓库A运输到酒吧$i$的箱子个数，$B_i$表示从仓库B运输到酒吧$i$的箱子个数，$Wa_i$表示从仓库A运输到酒吧$i$的成本，$Wb_i$表示从仓库B运输到酒吧$i$的成本，$D_i$表示酒吧$i$的需求量</p>
+<script type="math/tex; mode=display">
+\min \ F = \sum_{i=1}^5 (A_iWa_i+B_iWb_i) \\
+s.t:\begin{cases} 
 \sum_{i = 1}^5 A_i \leq 1000 \\
 \sum_{i = 1}^5 B_i \leq 4000\\
-A_i + B_i \geq D_i &amp;{i\in\{1, 2, 3, 4, 5\}}\\
+A_i + B_i \geq D_i &{i\in\{1, 2, 3, 4, 5\}}\\
 
-\end{cases}\]</span>
-<p>$$
-该题利用<strong>“分析决策变量，设置目标函数，设置约束条件”</strong>的步骤做，由于变量较多，利用字典来表示变量的值。</p>
+\end{cases}</script><p>该题利用<strong>“分析决策变量，设置目标函数，设置约束条件”</strong>的步骤做，由于变量较多，利用字典来表示变量的值。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pulp <span class="keyword">import</span> *</span><br><span class="line">warehouse = [<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;B&#x27;</span>]</span><br><span class="line">supply = &#123;<span class="string">&#x27;A&#x27;</span>: <span class="number">1000</span>, <span class="string">&#x27;B&#x27;</span>: <span class="number">4000</span>&#125;</span><br><span class="line">bars = [<span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;3&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;5&#x27;</span>]</span><br><span class="line">demand = &#123;</span><br><span class="line">    <span class="string">&#x27;1&#x27;</span>: <span class="number">500</span>,</span><br><span class="line">    <span class="string">&#x27;2&#x27;</span>: <span class="number">900</span>,</span><br><span class="line">    <span class="string">&#x27;3&#x27;</span>: <span class="number">1800</span>,</span><br><span class="line">    <span class="string">&#x27;4&#x27;</span>: <span class="number">200</span>,</span><br><span class="line">    <span class="string">&#x27;5&#x27;</span>: <span class="number">700</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># 运输成本</span></span><br><span class="line">cost = &#123;</span><br><span class="line">    <span class="string">&#x27;A&#x27;</span>: [<span class="number">2</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">2</span>, <span class="number">1</span>],</span><br><span class="line">    <span class="string">&#x27;B&#x27;</span>: [<span class="number">3</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line">&#125;</span><br><span class="line">routes = [(w, b) <span class="keyword">for</span> w <span class="keyword">in</span> warehouse <span class="keyword">for</span> b <span class="keyword">in</span> bars]</span><br><span class="line"><span class="comment"># 定义问题</span></span><br><span class="line">prob = LpProblem(<span class="string">&#x27;运输问题&#x27;</span>, LpMinimize)</span><br><span class="line"><span class="comment"># 定义决策变量</span></span><br><span class="line"><span class="built_in">vars</span> = LpVariable.dicts(<span class="string">&quot;路线&quot;</span>, (warehouse, bars), <span class="number">0</span>, <span class="literal">None</span>, LpInteger)</span><br><span class="line"><span class="comment"># 设置目标函数</span></span><br><span class="line">prob += (lpSum([<span class="built_in">vars</span>[w][b] * cost[w][<span class="built_in">int</span>(b)-<span class="number">1</span>] <span class="keyword">for</span> (w, b) <span class="keyword">in</span> routes]),</span><br><span class="line">    <span class="string">&#x27;运输成本&#x27;</span>)</span><br><span class="line"><span class="comment"># 设置约束条件</span></span><br><span class="line"><span class="keyword">for</span> w <span class="keyword">in</span> warehouse:</span><br><span class="line">    prob += (lpSum([<span class="built_in">vars</span>[w][b] <span class="keyword">for</span> b <span class="keyword">in</span> bars]) &lt;= supply[w],</span><br><span class="line">        <span class="string">&quot;运出仓库%s&quot;</span> % w)</span><br><span class="line"><span class="keyword">for</span> b <span class="keyword">in</span> bars:</span><br><span class="line">    prob += (lpSum([<span class="built_in">vars</span>[w][b] <span class="keyword">for</span> w <span class="keyword">in</span> warehouse]) &gt;= demand[b], </span><br><span class="line">        <span class="string">&quot;运进酒吧%s&quot;</span> % b)</span><br><span class="line"><span class="comment"># 求解问题</span></span><br><span class="line">prob.solve()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;status: &#x27;</span>, LpStatus[prob.status])</span><br><span class="line"><span class="comment"># 输出结果</span></span><br><span class="line"><span class="keyword">for</span> v <span class="keyword">in</span> prob.variables():</span><br><span class="line">    <span class="built_in">print</span>(v.name, v.varValue)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;min = &#x27;</span>, value(prob.objective))</span><br></pre></td></tr></table></figure>
 <p>输出结果如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">status:  Optimal</span><br><span class="line">路线_A_1 300.0</span><br><span class="line">路线_A_2 0.0</span><br><span class="line">路线_A_3 0.0</span><br><span class="line">路线_A_4 0.0</span><br><span class="line">路线_A_5 700.0</span><br><span class="line">路线_B_1 200.0</span><br><span class="line">路线_B_2 900.0</span><br><span class="line">路线_B_3 1800.0</span><br><span class="line">路线_B_4 200.0</span><br><span class="line">路线_B_5 0.0</span><br><span class="line">min =  8600.0</span><br></pre></td></tr></table></figure>
-<h1 id="参考">参考</h1>
-<ul>
-<li><a
-target="_blank" rel="noopener" href="https://youcans.blog.csdn.net/article/details/117388930">Python小白的数学建模课
-- CSDN博客</a></li>
-<li><a target="_blank" rel="noopener" href="https://coin-or.github.io/pulp/">Optimization with PuLP —
-PuLP 2.6.0 documentation (coin-or.github.io)</a></li>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://youcans.blog.csdn.net/article/details/117388930">Python小白的数学建模课 - CSDN博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://coin-or.github.io/pulp/">Optimization with PuLP — PuLP 2.6.0 documentation (coin-or.github.io)</a></li>
 </ul>
 
         </div>
