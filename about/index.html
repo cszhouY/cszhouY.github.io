@@ -13,7 +13,7 @@
 
 
 
-<title>Zhou Yee | Zhou Yee&#39;s Blog</title>
+<title>关于 | Zhou Yee&#39;s Blog</title>
 
 
 
@@ -164,68 +164,33 @@
                 <div class="container">
     <article class="post-wrap page">
         
-        <h2 class="post-title">Zhou Yee</h2>
+        <h2 class="post-title">关于</h2>
         
         <section class="post-content">
-            <style>
-* {
-  margin: 0;
-  padding: 0;
-  font-family: monospace, sans-serif;
-  font-weight: bold;
-}
-.flex {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.container {
-  height: 100vh;
-  background-color: #fff;;
-}
-
-.content {
-  animation: content-slide-in 2s steps(13) forwards;
-  overflow: hidden;
-  white-space: nowrap;
-  position: relative;
-}
-
-.content::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  height: 16px;
-  animation: sprinkle-bling .5s steps(2) infinite;
-}
-
-@keyframes content-slide-in {
-  from {
-    width: 0;
+            <h1 id="Zhou-Yee"><a href="#Zhou-Yee" class="headerlink" title="Zhou Yee"></a>Zhou Yee</h1><html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <!-- <title>Typing effect with js</title> -->
+  <style>
+    .divcss5{word-wrap:break-word;font-size: 24px;}
+  </style>
+</head>
+<body>
+<div class="divcss5"  id="aa"></div>
+<div style="display:none" id="w">
+ 一个积极的悲观主义者，爱好鼓弄代码，偶尔亵渎文字，擅长胡思乱想。现就读与某双一流B类高校，才疏学浅，请多指教。
+</div>
+<script language="javascript">
+  var index=0;
+  var word=document.getElementById("w").innerHTML;
+  function type(){
+    document.getElementById("aa").innerText = word.substring(0,index++);
   }
-  to {
-    width: 13ch;
-  }
-}
-
-@keyframes sprinkle-bling {
-  from {
-    border-right: 1px solid transparent;
-  }
-  to {
-    border-right: 1px solid #000;
-  }
-}
-
-</style>
-
-<html>
- <div class="container flex">
-    <div class="content">
-      一个积极的悲观主义者，爱好鼓弄代码，偶尔亵渎文字，擅长胡思乱想。现就读于某双一流B类高校，才疏学浅，请多指教。
-    </div>
-  </div>
+  setInterval(type, 200);
+</script>
+</body>
 </html>
+
         </section>
     </article>
 </div>
