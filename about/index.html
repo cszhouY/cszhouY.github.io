@@ -167,8 +167,65 @@
         <h2 class="post-title">Zhou Yee</h2>
         
         <section class="post-content">
-            <p>  一个积极的悲观主义者，爱好鼓弄代码，偶尔亵渎文字，擅长胡思乱想。现就读于某双一流B类高校，才疏学浅，请多指教。</p>
+            <style>
+* {
+  margin: 0;
+  padding: 0;
+  font-family: monospace, sans-serif;
+  font-weight: bold;
+}
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.container {
+  height: 100vh;
+  background-color: #fff;;
+}
 
+.content {
+  animation: content-slide-in 2s steps(13) forwards;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+
+.content::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  height: 16px;
+  animation: sprinkle-bling .5s steps(2) infinite;
+}
+
+@keyframes content-slide-in {
+  from {
+    width: 0;
+  }
+  to {
+    width: 13ch;
+  }
+}
+
+@keyframes sprinkle-bling {
+  from {
+    border-right: 1px solid transparent;
+  }
+  to {
+    border-right: 1px solid #000;
+  }
+}
+
+</style>
+
+<html>
+ <div class="container flex">
+    <div class="content">
+      一个积极的悲观主义者，爱好鼓弄代码，偶尔亵渎文字，擅长胡思乱想。现就读于某双一流B类高校，才疏学浅，请多指教。
+    </div>
+  </div>
+</html>
         </section>
     </article>
 </div>
