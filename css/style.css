@@ -1377,7 +1377,7 @@ header label {
 }
 @font-face {
   font-family: "iconfont"; /* Project id  */
-  src: url('iconfont.ttf?t=1664025053650') format('truetype');
+  src: url('iconfont.ttf?t=1664094826653') format('truetype');
 }
 
 .iconfont {
@@ -1386,6 +1386,10 @@ header label {
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-email:before {
+  content: "\e602";
 }
 
 .icon-csdn:before {
