@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Zhou Yee">
+
+
+
+
+
+<title>自制编译器（一）：Flex词法分析 | Zhou Yee&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/zhifeiji.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">主页</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">主页</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开全部</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前往底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开全部' : '折叠全部';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">自制编译器（一）：Flex词法分析</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">Zhou Yee</a>
+                    
+
+                    
+                        <span class="post-time">
+                        发表时间: <a href="#">十月 15, 2022&nbsp;&nbsp;20:27:24</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E8%87%AA%E5%88%B6%E7%BC%96%E8%AF%91%E5%99%A8/">自制编译器</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="flex介绍"><a href="#flex介绍" class="headerlink" title="flex介绍"></a>flex介绍</h1><p>flex是一个词法分析器的生成工具，它可以利用正则表达式来生成匹配相应字符串的C语言代码，其基本语法格式同lex相同。flex通过读取一个有规定格式的源文件，输出一个C语言源程序，即词法分析器。</p>
+<h2 id="flex源文件结构"><a href="#flex源文件结构" class="headerlink" title="flex源文件结构"></a>flex源文件结构</h2><p>flex源文件被<code>%%</code>分成三个部分：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">定义</span><br><span class="line">%%</span><br><span class="line">规则</span><br><span class="line">%%</span><br><span class="line">用户代码</span><br></pre></td></tr></table></figure></p>
+<h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p><strong>定义</strong>部分包含了词法单元名和它的正则规范。一个已有的词法单元可通过<code>&#123;&#125;</code>被其它词法单元的正则规范使用。如果需要引入C语言头文件或者定义C语言全局变量与函数，需要用<code>%&#123; %&#125;</code>括起来后定义在该部分。例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">%&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> idNum = <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> numNum = <span class="number">0</span>;</span><br><span class="line">%&#125;</span><br><span class="line"></span><br><span class="line">WHITE [\t\r\n ]</span><br><span class="line">DIGIT [<span class="number">0</span><span class="number">-9</span>]</span><br><span class="line">LETTER [a-zA-Z]</span><br><span class="line">NUMBER &#123;DIGIT&#125;*|&#123;DIGIT&#125;*<span class="string">&quot;.&quot;</span>&#123;DIGIT&#125;&#123;DIGIT&#125;*</span><br><span class="line">ID &#123;LETTER&#125;&#123;LETTER&#125;*&#123;DIGIT&#125;*</span><br></pre></td></tr></table></figure>
+<p>需要注意，该部分中定义的词法单元名与相应的正则规范并不是必须的，它类似于C语言中的宏定义<code>#define</code>，仅起到对某个词法单元取别名的作用，flex识别一个词法单元是依据其正则规范。</p>
+<h3 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h3><p><strong>规则</strong>部分用来定义词法分析器分析到一个词法单元时其需要执行的相关动作。该部分包含多个规则条目，每个条目的格式为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pattern action</span><br></pre></td></tr></table></figure>
+<p>pattern是一个词法单元正则规范，也可以是定义部分中已定义的词法单元名。action是当flex扫描识别到该词法时需要执行的操作，是一个使用<code>&#123;&#125;</code>括起来的C语言程序片段。action中可使用flex内部定义的变量，如<code>yytext</code>与<code>yyleng</code>：</p>
+<ul>
+<li><code>yytext</code>：<code>char*</code>类型，指向当前识别到的词法单元的内容</li>
+<li><code>yyleng</code>：<code>int</code>类型，被赋值为当前识别到的词法单元内容的长度</li>
+</ul>
+<p>每当词法分析器识别到一个新的词法单元，这两个变量均会更新。flex中默认的action为内置<code>ECHO</code>，即输出<code>yytext</code>.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">clear &#123;numNum = idNum = <span class="number">0</span>;<span class="built_in">printf</span>(<span class="string">&quot;clear!&quot;</span>);&#125;</span><br><span class="line">&#123;NUMBER&#125; &#123;numNum++; <span class="built_in">printf</span>(<span class="string">&quot;NUMBER %s\n&quot;</span>, yytext);&#125;</span><br><span class="line">&#123;ID&#125; &#123;idNum++; <span class="built_in">printf</span>(<span class="string">&quot;ID %s %d\n&quot;</span>, yytext, yyleng);&#125;</span><br><span class="line">&#123;WHITE&#125; ;</span><br></pre></td></tr></table></figure>
+<p>这里定义了三个规则条目：</p>
+<ul>
+<li>当识别到<code>clear</code>时，<code>numNum</code>和<code>idNum</code>被赋值为0，此时pattern为词法单元的正则规范。</li>
+<li>当识别到<code>&#123;NUMBER&#125;</code>时，<code>numNum</code>变量自增1，并输出内容，此时pattern为词法单元名，需要使用<code>&#123;&#125;</code>，下同</li>
+<li>当识别到<code>&#123;ID&#125;</code>时，<code>idNum</code>变量自增1，并输出内容与长度</li>
+<li>当识别到<code>&#123;WHITE&#125;</code>时，跳过</li>
+</ul>
+<p>注意，<strong>flex生成的词法分析器采用<em>最长匹配策略</em>，而当扫描到的某个词法单元匹配多个pattern，且长度相同时，将会优先匹配最先定义的规则条目。</strong>因此，<code>clear</code>规则需要定义在<code>&#123;NUMBER&#125;</code>规则之前。</p>
+<h3 id="用户代码"><a href="#用户代码" class="headerlink" title="用户代码"></a>用户代码</h3><p>该部分用户可添加实现自定义功能的代码，代码将会被复制到flex输出文件<em>lex.yy.c</em>中。通常需要编写<code>main()</code>，作为词法分析器的<code>main()</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> <span class="type">const</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(argc != <span class="number">2</span> || !(yyin = fopen(argv[<span class="number">1</span>],<span class="string">&quot;r&quot;</span>)))&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;ERROR: Illegal Input File\n&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    yylex();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d NUMBERs and %d IDs are recorded\n&quot;</span>, numNum, idNum);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>命令行参数指定输入文件，最后输出整数/浮点数、标识符的统计数。程序出现的flex定义的变量与函数：</p>
+<ul>
+<li><code>yyin</code> ：<code>FILE*</code>类型，指向flex的输入文件，默认为标准输入；与之对应的是<code>yyout</code>，指向flex输出文件，默认为标准输出</li>
+<li><code>yylex()</code>：flex的扫描程序，它将从<code>yyin</code>指向的文件首部开始扫描，识别每一个词法单元，直到EOF。规则部分中每个词法单元的action将会添加到该函数中，从而实现了执行词法单元对应的操作。action部分可添加<code>return</code>语句，作为<code>yylex()</code>的返回值。如果<code>yylex()</code>因为执行<code>return</code>语句而停止，词法分析器将重新调用<code>yylex()</code>继续扫描。如果要接收<code>yylex()</code>的每一次返回值，需要借助<code>while</code>语句</li>
+</ul>
+<p>词法分析器会调用<code>yywrap()</code>来支持多个文件输入，当函数返回值为0时，表示继续读取<code>yyin</code>所指向的文件；返回值为1时，表示读取完一个文件后结束程序。该函数默认由用户定义。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">yywrap</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果没用定义该函数，gcc在编译时会报错<code>undefined reference to &#39;yywrap&#39;</code>。也可以在定义部分添加<code>%option noyywrap</code>，词法分析器将不会调用<code>yywrap()</code>。</p>
+<h2 id="生成词法分析器"><a href="#生成词法分析器" class="headerlink" title="生成词法分析器"></a>生成词法分析器</h2><p>将上述实现计数器功能的flex程序命名为<em>counter.l</em>，在命令行输入<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flex counter.l</span><br></pre></td></tr></table></figure><br>生成<em>lex.yy.c</em>，这就是词法分析器的源文件。使用<code>gcc</code>等编译器编译，最后运行可执行文件，输入文件为<em>input.txt</em></p>
+<p><img src="https://pic1.imgdb.cn/item/634aa9f716f2c2beb19b5ad7.png" style="zoom:80%;" /></p>
+<h1 id="C-Minus词法分析"><a href="#C-Minus词法分析" class="headerlink" title="C Minus词法分析"></a>C Minus词法分析</h1><h2 id="C-Minus惯用的词法"><a href="#C-Minus惯用的词法" class="headerlink" title="C Minus惯用的词法"></a>C Minus惯用的词法</h2><ol>
+<li>下面是语言的关键字：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">else if int float return void while </span><br></pre></td></tr></table></figure></li>
+<li>下面都是专用符号<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ - * / &lt; &lt;= &gt; &gt;= == != = ; , . ( ) [ ] &#123; &#125; /* */</span><br></pre></td></tr></table></figure></li>
+<li>其它标记是<strong><em>ID</em></strong>和<strong><em>NUM</em></strong>，通过下列正则表达式定义：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ID = letter letter*</span><br><span class="line">NUM = digit digit*</span><br><span class="line">letter = a|..|z|A|..|Z</span><br><span class="line">digit = 0|..|9</span><br></pre></td></tr></table></figure></li>
+<li>空格由空白、换行符和制表符组成。空格通常被忽略，除了它必须分开<strong><em>ID</em></strong>和<strong><em>NUM</em></strong>关键字。</li>
+<li>注释通常是C语言符号<code>/*.....*/</code>围起来。注释可以放在任何空包出现的位置上，且可以超过一行。注释不能嵌套。</li>
+</ol>
+<h2 id="词法分析"><a href="#词法分析" class="headerlink" title="词法分析"></a>词法分析</h2><p>C Minus的词法分析要求实现识别C Minus的合法Token，并且其相关信息，包括：</p>
+<ul>
+<li>词法单元类型（int整数）</li>
+<li>第一次出现时所在行</li>
+<li>在一行中的开始位置</li>
+<li>在一行中的结束位置</li>
+</ul>
+<h3 id="Token定义"><a href="#Token定义" class="headerlink" title="Token定义"></a>Token定义</h3><p>使用一个枚举类定义所有词法单元类型</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> <span class="title">cminus_token_type</span> &#123;</span></span><br><span class="line">    <span class="comment">//运算</span></span><br><span class="line">    ADD = <span class="number">259</span>,</span><br><span class="line">    SUB = <span class="number">260</span>,</span><br><span class="line">    MUL = <span class="number">261</span>,</span><br><span class="line">    DIV = <span class="number">262</span>,</span><br><span class="line">    LT = <span class="number">263</span>,</span><br><span class="line">    LTE = <span class="number">264</span>,</span><br><span class="line">    GT = <span class="number">265</span>,</span><br><span class="line">    GTE = <span class="number">266</span>,</span><br><span class="line">    EQ = <span class="number">267</span>,</span><br><span class="line">    NEQ = <span class="number">268</span>,</span><br><span class="line">    ASSIN = <span class="number">269</span>,</span><br><span class="line">    <span class="comment">//符号</span></span><br><span class="line">    SEMICOLON = <span class="number">270</span>,</span><br><span class="line">    COMMA = <span class="number">271</span>,</span><br><span class="line">    LPARENTHESE = <span class="number">272</span>,</span><br><span class="line">    RPARENTHESE = <span class="number">273</span>,</span><br><span class="line">    LBRACKET = <span class="number">274</span>,</span><br><span class="line">    RBRACKET = <span class="number">275</span>,</span><br><span class="line">    LBRACE = <span class="number">276</span>,</span><br><span class="line">    RBRACE = <span class="number">277</span>,</span><br><span class="line">    <span class="comment">//关键字</span></span><br><span class="line">    ELSE = <span class="number">278</span>,</span><br><span class="line">    IF = <span class="number">279</span>,</span><br><span class="line">    INT = <span class="number">280</span>,</span><br><span class="line">    FLOAT = <span class="number">281</span>,</span><br><span class="line">    RETURN = <span class="number">282</span>,</span><br><span class="line">    VOID = <span class="number">283</span>,</span><br><span class="line">    WHILE = <span class="number">284</span>,</span><br><span class="line">    <span class="comment">//ID和NUM</span></span><br><span class="line">    IDENTIFIER = <span class="number">285</span>,</span><br><span class="line">    INTEGER = <span class="number">286</span>,</span><br><span class="line">    FLOATPOINT = <span class="number">287</span>,</span><br><span class="line">    ARRAY = <span class="number">288</span>,</span><br><span class="line">    LETTER = <span class="number">289</span>,</span><br><span class="line">    <span class="comment">//others</span></span><br><span class="line">    EOL = <span class="number">290</span>,</span><br><span class="line">    COMMENT = <span class="number">291</span>,</span><br><span class="line">    BLANK = <span class="number">292</span>,</span><br><span class="line">    ERROR = <span class="number">258</span></span><br><span class="line">&#125; Token;</span><br></pre></td></tr></table></figure>
+<h3 id="声明和选项设置"><a href="#声明和选项设置" class="headerlink" title="声明和选项设置"></a>声明和选项设置</h3><p>在第一部分声明和选项设置中引用头文件，并定义全局变量：</p>
+<ul>
+<li><code>lines</code>：表示某个词法单元第一次出现时所在行</li>
+<li><code>pos_start</code>：表示词法单元在改行开始位置</li>
+<li><code>pos_end</code>：表示词法单元在该行结束位置</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">%option noyywrap</span><br><span class="line">%&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;lexical_analyzer.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> lines;</span><br><span class="line"><span class="type">int</span> pos_start;</span><br><span class="line"><span class="type">int</span> pos_end;</span><br><span class="line"></span><br><span class="line">%&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="词法单元规则"><a href="#词法单元规则" class="headerlink" title="词法单元规则"></a>词法单元规则</h3><p>此部分用于定义C Minus的词法单元的规则，模式采用正则表达式表示，注意当词法单元的pattern中包含特殊字符时，需要使用转义字符<code>\</code>。动作使用C语言描述，确定每个Token在每行的开始位置和结束位置，并且返回该词法单元类型。该返回值为<code>yylex()</code>的返回值。例如：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\+ &#123; pos_start = pos_end;pos_end++;<span class="keyword">return</span> ADD;&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure><br>有几个特殊的词法单元需要注意：</p>
+<ul>
+<li><p>End Of Line<br>当词法分析器扫描到换行符时（Windows下为<code>\r\n</code>，Linux下为<code>\n</code>，Mac下为<code>\r</code>），行数<code>lines</code>自增，<code>pos_start</code>与<code>pos_end</code>更新</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[\n] &#123; pos_start = <span class="number">1</span>;pos_end = <span class="number">1</span>;lines++;<span class="keyword">return</span> EOL;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>注释<br>由于flex生成的词法分析器采用最长匹配策略，且注释<code>/**/</code>包含正则的通配符，正则规范较为复杂。当识别到一个注释时，需要考虑词法单元开始位置和结束位置变化，且多行注释要修改<code>lines</code>.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">\/\*([*]*(([^*/])+([/])*)*)*\*\/ &#123; </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="built_in">strlen</span>(yytext); ++i)&#123;</span><br><span class="line">        pos_end++;</span><br><span class="line">        <span class="keyword">if</span>( yytext[i] == <span class="string">&#x27;\n&#x27;</span> )&#123;</span><br><span class="line">            lines += <span class="number">1</span>;pos_end = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> COMMENT;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>错误的词法单元<br>当扫描到错误的词法单元，仅返回<code>ERROR</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">. &#123;<span class="keyword">return</span> ERROR;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="分类处理词法单元"><a href="#分类处理词法单元" class="headerlink" title="分类处理词法单元"></a>分类处理词法单元</h3><p>在同一个输入文件或输入流中，每识别到一个词法单元，将会调用一次<code>yylex()</code>，即词法分析器循环调用<code>yylex()</code>，直到EOF。因此我们要对每一个不同的Token，即<code>yylex()</code>的返回值进行讨论。</p>
+<p>对于空白符、注释、EOL，跳过即可；对于错误单元，输出其错误信息；对于其它词法单元，将其信息保存到存储结构中。存储词法单元时使用的数据结构是链表<code>Token_Stream</code>，接口如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 初始化词法单元流</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Token_Stream_Init</span><span class="params">(Token_Stream* token_stream)</span>;</span><br><span class="line"><span class="comment">// 加入一个新的词法单元，成功返回0</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">append_Token</span><span class="params">(Token_Stream* Token_Stream, <span class="type">char</span>* text, <span class="type">int</span> token, <span class="type">int</span> lines, <span class="type">int</span> pos_start, <span class="type">int</span> pos_end)</span>;</span><br><span class="line"><span class="comment">// 遍历词法单元流</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">traversal_Token_Stream</span><span class="params">(<span class="type">const</span> Token_Stream* token_stream)</span>;</span><br></pre></td></tr></table></figure>
+<p>词法单元的分类处理过程：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(token = yylex())&#123;</span><br><span class="line">        <span class="keyword">switch</span>(token)&#123;</span><br><span class="line">            <span class="keyword">case</span> COMMENT:</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> BLANK:</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> EOL:</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> ERROR:</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;[ERR]: unable to analysize %s at %d line, from %d to %d\n&quot;</span>, yytext, lines, pos_start, pos_end);</span><br><span class="line">            <span class="keyword">default</span> :</span><br><span class="line">                append_Token(token_stream, yytext, token, lines, pos_start, pos_end);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h2><p>完整代码见<a target="_blank" rel="noopener" href="https://github.com/cszhouY/CMinus-compiler">仓库</a>。flex生成的词法分析器将会将词法单元的类型、所在行、开始位置与结束位置输出。C语言测试案例如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*test.c*/</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">1</span>, b = <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">if</span>(a &lt; b)</span><br><span class="line">        a = b;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出结果如下：<br><img src="https://pic1.imgdb.cn/item/634aaa1316f2c2beb19b8eea.png" alt=""></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1o6OFfCY?_at_=1665233078383">《编译原理及实践》（美）劳顿 著，冯博琴等 译</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kitamado/cminus-compiler">USTC 2019秋 编译原理</a></li>
+<li><a target="_blank" rel="noopener" href="https://westes.github.io/flex/manual/">Lexical Analysis With Flex, for Flex 2.6.2</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>作者:</span>
+                        <span>Zhou Yee</span>
+                    </p>
+                
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2022 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/"># 编译原理</a>
+                    
+                        <a href="/tags/Flex/"># Flex</a>
+                    
+                        <a href="/tags/%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90/"># 词法分析</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">返回</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2022/09/13/%E7%81%B0%E8%89%B2%E9%A2%84%E6%B5%8B%E6%A8%A1%E5%9E%8B/">灰色预测模型</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+  
+ <div id="gitalk-container"></div>  
+ <link rel="stylesheet" href="//unpkg.com/gitalk/dist/gitalk.css">
+
+<script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script type="text/javascript">
+
+ var gitalk = new Gitalk({
+
+ clientID: '86994a143adea299d26c',
+
+ clientSecret: '4651662508f77e12032fecb76d7c06ec1b29d78d',
+
+ repo: 'cszhouY.github.io',
+
+ owner: 'cszhouY',
+
+ admin: 'cszhouY',
+
+ id: md5(location.pathname), 
+
+ labels: 'Gitalk'.split(',').filter(l => l),
+
+ perPage: 10,
+
+ pagerDirection: 'last',
+
+ createIssueManually: true,
+
+ distractionFreeMode: false
+
+ })
+
+ gitalk.render('gitalk-container')
+
+</script>
+  
+
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Zhou Yee | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
