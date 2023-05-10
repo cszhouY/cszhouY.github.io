@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Zhou Yee">
+
+
+
+
+
+<title>计算机体系结构——记分牌 | Zhou Yee&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/zhifeiji.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Zhou Yee's Blog" type="application/atom+xml">
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">主页</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">主页</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开全部</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前往底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开全部' : '折叠全部';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">计算机体系结构——记分牌</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">Zhou Yee</a>
+                    
+
+                    
+                        <span class="post-time">
+                        发表时间: <a href="#">四月 30, 2023&nbsp;&nbsp;18:19:15</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/">计算机体系结构</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="记分牌算法"><a href="#记分牌算法" class="headerlink" title="记分牌算法"></a>记分牌算法</h1><p>在一个顺序执行的流水线中，每条指令依次发射，且每个流水阶段只有一条指令在运行。这种顺序执行方式存在一个问题：当前一条指令执行周期数较长时（如乘除法指令是加法指令的几十倍、访存指令缓存不命中），后面指令都将停等，尽管它们和前一条指令不存在数据冒险。为了降低这种性能损失，乱序执行的处理器被设计出来。</p>
+<p>在乱序执行中，CPU会将指令分为多个微操作（Micro-operations），并将这些微操作按照指令之间的依赖关系进行调度，以最大化地利用CPU的执行单元。这样可以让CPU在等待某些资源时，可以继续执行其他指令，从而提高CPU的利用率和性能。</p>
+<p>记分牌实际上是一个信息存储单元，它负责记录指令状态、运算功能单元状态和寄存器结果状态，在ID流水段CPU依据这些状态信息检查结构冒险和数据冒险，以此判断是否发射当前指令。</p>
+<p>一个功能单元通常表现为如下形式</p>
+<p><img src="https://pic2.imgdb.cn/item/645b09ff0d2dde5777136709.jpg" alt=""></p>
+<p>有9个字段表示每一个部件的状态：</p>
+<ul>
+<li><code>busy</code>：指示该单元是否繁忙</li>
+<li><code>Op</code>：该单元正在进行的运算类型</li>
+<li><code>Fi</code>：运算结果的目标寄存器</li>
+<li><code>Fj</code>、<code>Fk</code>：源寄存器</li>
+<li><code>Rj</code>、<code>Rk</code>：指示源寄存器<code>Fj</code>、<code>Fk</code>是否准备就绪但尚未读取。在读取操作数后设置为“yes”</li>
+<li><code>Qj</code>、<code>Qk</code>：如果源寄存器<code>Fj</code>、<code>Fk</code>没有准备就绪，那生成它们的值的部件</li>
+</ul>
+<p>一个寄存器结果状态通常表现为如下形式：</p>
+<p><img src="https://pic2.imgdb.cn/item/645b0b2f0d2dde577714841c.jpg" alt=""></p>
+<p>如果一条活动指令以该寄存器为目标寄存器，则指出哪个功能单元将写入每个寄存器。只要没有向该寄存器写入的未完成指令，则将该字段设置为空。</p>
+<h1 id="乱序流水线工作步骤"><a href="#乱序流水线工作步骤" class="headerlink" title="乱序流水线工作步骤"></a>乱序流水线工作步骤</h1><p>为了检查指令之间的结构冒险和数据冒险，需要将ID阶段拆成发射和读取操作数两个阶段，以下四个阶段代替了标准RISCV流水线中的ID、EX和WB步骤：</p>
+<ol>
+<li><strong>发射</strong>：如果指令的一个功能单元空闲（功能部件状态的<code>busy</code>字段），且没有其它活动指令以同一寄存器为目标寄存器（目标寄存器状态是否为空），则记分牌向功能单元发射指令，并更新指令状态。该步骤能解决<strong>结构冒险</strong>和<strong>WRW冒险。</strong></li>
+<li><strong>读取操作数</strong>：如果不存在检查活动指令写入源寄存器（<code>Rj</code>和<code>Rk</code>字段为yes），记分牌将该指令发送到功能部件（<code>Rj</code>和<code>Rk</code>字段标记为no）。该步骤能解决<strong>RAW冒险</strong>。</li>
+<li><strong>执行</strong>：功能单元开始执行对应操作，更新功能单元状态。当结果就绪后，通知记分牌。</li>
+<li><strong>写结果</strong>：当其它活动指令不需要读取当前计算结果即将写入的寄存器，写回寄存器，并清空该条指令在记分牌记录的状态，同时修改以该指令目标寄存器作为源操作数的指令的<code>Rj</code>和<code>Rk</code>字段。该步骤能解决<strong>WAR冒险</strong>。</li>
+</ol>
+<h1 id="案例演示"><a href="#案例演示" class="headerlink" title="案例演示"></a>案例演示</h1><p>下文演示一个简单的记分牌算法下多条指令乱序执行的案例。</p>
+<blockquote>
+<p><strong><em>Circle 1</em></strong></p>
+</blockquote>
+<p><img src="https://pic2.imgdb.cn/item/645b13b50d2dde57771e911b.jpg" alt=""></p>
+<p>检查记分牌状态，功能部件状态和寄存器状态均为空，第一条指令发射。</p>
+<ul>
+<li>更新结构状态：该指令issue步骤在第 1 个周期执行</li>
+<li>更新功能部件状态：Interger部件开始忙碌，执行load操作，目标寄存器<code>Fi</code>为<code>F6</code>，源寄存器<code>Fk</code>为<code>R2</code>，且<code>R2</code>准备就绪，<code>Rk</code>标记为<code>yes</code></li>
+<li>更新寄存器状态：<code>F6</code>寄存器即将被Integer部件的结果写入</li>
+</ul>
+<blockquote>
+<p><strong><em>Cirlce 2</em></strong></p>
+</blockquote>
+<p><img src="https://pic2.imgdb.cn/item/645b528f0d2dde577769128a.jpg" alt=""></p>
+<p>第一条<code>LD</code>指令进入读操作数步骤，记分牌检查Integer部件非空闲，第二条<code>LD</code>指令不发射。</p>
+<blockquote>
+<p> <strong><em>Circle 3</em></strong></p>
+</blockquote>
+<p><img src="https://pic2.imgdb.cn/item/645b539f0d2dde57776a2ac0.jpg" alt=""></p>
+<p>第一条<code>LD</code>指令进入执行步骤，将<code>Rk</code>标记为no，表示源寄存器<code>Fk</code>读取完成。由第二条<code>LD</code>指令阻塞发射，因此后续的所有指令都无法发射。</p>
+<blockquote>
+<p> <strong><em>Circle 4</em></strong></p>
+</blockquote>
+<p><img src="https://pic2.imgdb.cn/item/645b55dd0d2dde57776c6b72.jpg" alt=""></p>
+<p>第一条<code>LD</code>指令进入写回步骤，将存储器输出值写回寄存器堆，并且清空记分牌。</p>
+<blockquote>
+<p> <strong><em>Circle 5</em></strong></p>
+</blockquote>
+<p><img src="https://pic2.imgdb.cn/item/645b56780d2dde57776d4f84.jpg" alt=""></p>
+<p>检查记分牌状态，Integer部件空闲，寄存器状态中<code>F2</code>字段为空，第二条<code>LD</code>指令发射。</p>
+<ul>
+<li>更新结构状态：该指令issue步骤在第 5 个周期执行</li>
+<li>更新功能部件状态：Interger部件开始忙碌，执行load操作，目标寄存器<code>Fi</code>为<code>F2</code>，源寄存器<code>Fk</code>为<code>R3</code>，且<code>R2</code>准备就绪，<code>Rk</code>标记为<code>yes</code></li>
+<li>更新寄存器状态：<code>F2</code>寄存器即将被Integer部件的结果写入</li>
+</ul>
+<blockquote>
+<p><strong><em>Circle 6</em></strong></p>
+</blockquote>
+<p><img src="https://pic2.imgdb.cn/item/645b57f30d2dde57776fc361.jpg" alt=""></p>
+<p>当前没有活动指令将要写入源寄存器<code>R3</code>, 第二条<code>LD</code>指令进入读操作数阶段。</p>
+<p>检查记分牌状态，Multi部件空闲，寄存器状态中<code>F0</code>字段为空，<code>MULTD</code>指令发射。</p>
+<ul>
+<li>更新结构状态：<code>MULTD</code>指令issue步骤在第 6 个周期执行</li>
+<li>更新功能部件状态：Multi1部件忙碌，执行Multi操作，目标寄存器<code>Fi</code>为<code>F0</code>，源寄存器<code>Fj</code>和<code>Fk</code>为<code>F2</code>和<code>F4</code>，检查寄存器状态，此时源寄存器<code>Fj</code>没有准备就绪，有活动指令将从Integer部件写入，标记<code>Qj</code></li>
+<li>更新寄存器状态：<code>F0</code>即将被Multi1部件写入</li>
+</ul>
+<blockquote>
+<p><strong><em>Circle 7</em></strong></p>
+</blockquote>
+<p><img src="https://pic2.imgdb.cn/item/645b5bea0d2dde5777749a7c.jpg" alt=""></p>
+<p>第二条<code>LD</code>进入执行步骤，将<code>Rk</code>标记为no，表示源寄存器<code>Fk</code>读取完成。<code>MULTD</code>指令的<code>Rj</code>为no，表示源寄存器<code>Fj</code>未准备就绪，无法进入读操作数步骤。</p>
+<p>检查记分牌状态，Add部件空闲，寄存器状态中<code>F8</code>字段为空，<code>SUBD</code>指令发射。</p>
+<ul>
+<li>更新结构状态：<code>SUBD</code>指令issue步骤在第 7 个周期执行</li>
+<li>更新功能部件状态：Add部件忙碌，执行Sub操作，目标寄存器<code>Fi</code>为<code>F8</code>，源寄存器<code>Fj</code>和<code>Fk</code>为<code>F6</code>和<code>F2</code>，检查寄存器状态，此时源寄存器<code>Fk</code>没有准备就绪，有活动指令将从Integer部件写入，标记<code>Qk</code></li>
+<li>更新寄存器状态：<code>F8</code>即将被Add部件写入</li>
+</ul>
+<blockquote>
+<p><strong><em>Circle 8</em></strong></p>
+</blockquote>
+<p>第 8 个周期分为前后半个周期分别分析。</p>
+<p><img src="https://pic2.imgdb.cn/item/645b62bf0d2dde57777b6bdc.jpg" alt=""></p>
+<p>在前半个周期，Divide部件空闲，寄存器状态中<code>F10</code>为空，<code>DIVD</code>指令发射。</p>
+<ul>
+<li>更新结构状态：<code>DIVD</code>指令issue步骤在第 8 个周期执行</li>
+<li>更新功能部件状态：Multi1部件忙碌，执行Multi操作，目标寄存器<code>Fi</code>为<code>F10</code>，源寄存器<code>Fj</code>和<code>Fk</code>为<code>F0</code>和<code>F6</code>，检查寄存器状态，此时源寄存器<code>Fj</code>没有准备就绪，有活动指令将从Integer部件写入，标记<code>Qj</code></li>
+<li>更新寄存器状态：<code>F10</code>即将被Multi1部件写入</li>
+</ul>
+<p><img src="https://pic2.imgdb.cn/item/645b677f0d2dde5777827436.jpg" alt=""></p>
+<p>在后半个周期，第二条指令执行写回步骤，清空它在记分牌中的状态信息，此时寄存器<code>F2</code>已准备就绪，更改功能部件状态中<code>MULTD</code>指令的<code>Qj</code>、<code>Rj</code>字段，<code>SUBD</code>指令的<code>Qk</code>、<code>Rk</code>字段。</p>
+<blockquote>
+<p><strong><em>Circle 9</em></strong></p>
+</blockquote>
+<p><img src="https://pic2.imgdb.cn/item/645b697f0d2dde577784248e.jpg" alt=""></p>
+<p><code>MULTD</code>指令和<code>SUBD</code>指令的源寄存器均已准备就绪且尚未读取，两条指令都进入读操作数步骤。由于Add部件非空闲，<code>ADDD</code>指令不能发射。</p>
+<p>后面的步骤都相似，有时间再慢慢补充。下面是执行完这6条指令记分牌状态：</p>
+<blockquote>
+<p><strong><em>Circle 62</em></strong></p>
+</blockquote>
+<p><img src="https://pic2.imgdb.cn/item/645b6b060d2dde5777856f45.jpg" alt=""></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/chen0031/Computer-Architecture-A-Quantitative-Approach/blob/master/Book/Computer%20Architecture%20a%20Quantitative%20Approach%206th.pdf">Computer Architecture: A Quantitative Approach 6th Edition</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/496078836">计算机体系结构-记分牌ScoreBoard</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Scoreboarding">Introduction to Scoreboarding in Wikipedia</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>作者:</span>
+                        <span>Zhou Yee</span>
+                    </p>
+                
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2022 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/"># 计算机体系结构</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">返回</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/blog/566e7bf0.html">c++并发模型：线程池</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+  
+ <div id="gitalk-container"></div>  
+ <link rel="stylesheet" href="//unpkg.com/gitalk/dist/gitalk.css">
+
+<script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script type="text/javascript">
+
+ var gitalk = new Gitalk({
+
+ clientID: '86994a143adea299d26c',
+
+ clientSecret: '4651662508f77e12032fecb76d7c06ec1b29d78d',
+
+ repo: 'cszhouY.github.io',
+
+ owner: 'cszhouY',
+
+ admin: 'cszhouY',
+
+ id: md5(location.pathname), 
+
+ labels: 'Gitalk'.split(',').filter(l => l),
+
+ perPage: 10,
+
+ pagerDirection: 'last',
+
+ createIssueManually: true,
+
+ distractionFreeMode: false
+
+ })
+
+ gitalk.render('gitalk-container')
+
+</script>
+  
+
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Zhou Yee | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
