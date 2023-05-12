@@ -62,9 +62,9 @@
     <category term="并行计算" scheme="https://cszhouy.github.io/categories/%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/"/>
     
     
-    <category term="C++" scheme="https://cszhouy.github.io/tags/C/"/>
-    
     <category term="线程池" scheme="https://cszhouy.github.io/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
+    
+    <category term="C++" scheme="https://cszhouy.github.io/tags/C/"/>
     
   </entry>
   
@@ -88,9 +88,9 @@
     <category term="五子棋AI" scheme="https://cszhouy.github.io/categories/%E4%BA%94%E5%AD%90%E6%A3%8BAI/"/>
     
     
-    <category term="人工智能" scheme="https://cszhouy.github.io/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"/>
-    
     <category term="C++" scheme="https://cszhouy.github.io/tags/C/"/>
+    
+    <category term="人工智能" scheme="https://cszhouy.github.io/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"/>
     
   </entry>
   

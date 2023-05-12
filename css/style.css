@@ -145,7 +145,7 @@ template {
 @font-face {
   font-family: 'LXGW';
   src: url("../fonts/LXGW/LXGW.ttf") format('truetype');
-  font-weight: 400;
+  font-weight: 300;
   font-display: swap;
 }
 html {
