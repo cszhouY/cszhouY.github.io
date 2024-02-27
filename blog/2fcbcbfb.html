@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Zhou Yee">
+
+
+
+
+
+<title>论文 | Anatomy of High-Performance Matrix Multiplication | Zhou Yee&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/zhifeiji.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Zhou Yee's Blog" type="application/atom+xml">
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">主页</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">主页</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开全部</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前往底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开全部' : '折叠全部';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">论文 | Anatomy of High-Performance Matrix Multiplication</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">Zhou Yee</a>
+                    
+
+                    
+                        <span class="post-time">
+                        发表时间: <a href="#">一月 27, 2024&nbsp;&nbsp;20:30:13</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E8%AE%BA%E6%96%87/">论文</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="INTRODUCTION"><a href="#INTRODUCTION" class="headerlink" title="INTRODUCTION"></a>INTRODUCTION</h1><p>在一个复杂的多级内存架构下，为了实现高性能矩阵乘，需要精心设计 $C = \widetilde{A}B + C$ 的算法，有两个关注的因素：</p>
+<ul>
+<li>浮点数运算速率和浮点数据从Cache到寄存器的传输速率。文章提到，由于浮点计算速率和L2 Cache到寄存器的传输速率比值较小，因此可以将矩阵存放在L2 Cache。</li>
+<li>TLB可处理数据的大小限制矩阵 $\widetilde{A}$ 大小。</li>
+</ul>
+<p><img src="https://pic.imgdb.cn/item/65ddd8c09f345e8d0399f49e.jpg" alt="Alt text"></p>
+<p><strong>文章以列主序存储矩阵</strong>，将矩阵乘分为以下八种：</p>
+<p><img src="https://pic.imgdb.cn/item/65ddd8e49f345e8d039a6e83.jpg" alt="Alt text"></p>
+<p>为了减少数据在不同层次内存之间的移动，优化访存，矩阵乘算法都将分块实现。GEMM可以被分解为GEPP、GEPM、GEMP，后者又可以继续被分解为GEBP、GEPB、GEPDOT。</p>
+<h1 id="HIGH-PERFORMANCE-GEBP-GEPB-AND-GEPDOT"><a href="#HIGH-PERFORMANCE-GEBP-GEPB-AND-GEPDOT" class="headerlink" title="HIGH-PERFORMANCE GEBP, GEPB, AND GEPDOT"></a>HIGH-PERFORMANCE GEBP, GEPB, AND GEPDOT</h1><p><img src="https://pic.imgdb.cn/item/65ddd92a9f345e8d039b5322.jpg" alt="Alt text"></p>
+<p>提出三个假设：</p>
+<p>a. $m_c$, $k_c$ 足够小，A矩阵和B、C的一行（$B_j$, $C_j$）能够放在Cache中。</p>
+<p>b. 如果 $A$, $B_j$, $C_j$ 都在Cache中，$C_j = AB_j + C_j$ 的计算速率能够达到峰值。</p>
+<p>c. A能够在其需要被使用的时候能够一直存在Cache中。</p>
+<p>计算和数据移动的比例为</p>
+<script type="math/tex; mode=display">
+\frac{2m_ck_cn}{m_ck_c+(2m_c+k_c)n} \frac{flops}{memops} \approx \frac{2m_ck_c}{2m_c + k_c} \frac{flops}{memops} \; when \; k_c \ll n.</script><p>在 $m_ck_c$ 个浮点数填充大部分Cache空间，且满足上述三条假设的情况下，该比例应当尽可能的大。</p>
+<p><img src="https://pic.imgdb.cn/item/65ddd9519f345e8d039bd0a3.jpg" alt="Alt text"></p>
+<p>文章从以下几个方面对GEBP继续进行优化：</p>
+<ol>
+<li><p>Cache层次<br>在满足三条假设的前提下，矩阵A应当放在离寄存器更远的Cache中，因为可以存储更多的数据。文章对L2 Cache进行了分析：令 $R_{comp}$ 和 $R_{load}$ 分别是CPU进行浮点数计算的速率和将数据从L2 Cache传输到寄存器的速率，假设A在L2 Cache中， $B_j$, $C_j$ 在L1 Cache中，同时L1 Cache到寄存器的带宽足够大使 $B_j$, $C_j$ 传输的开销可以忽略。为了将矩阵A的传输开销语计算开销重叠，必须要满足 $2n_rR_{comp} \geq 1/R_{load}$ ，即</p>
+<script type="math/tex; mode=display">
+n_r \geq \frac{R_{comp}}{2R_{load}}</script></li>
+<li><p>TLB<br>TLB是页表项的缓存，用于加速从虚拟地址到物理地址的翻译。如果一个虚拟地址在TLB中，可以直接翻译为物理地址，否则需要乡下继续查询页表，即发生了TLB miss。TLB miss和Cache miss的区别是后者可以通过prefetch等计数减少或消除CPU stall，而TLB miss必然引起CPU miss。因此，需要添加两条假设（限制条件）：</p>
+<p> d. $m_c$, $k_c$ 应当足够小，使得矩阵A、$B_j$、$C_j$ 能够在计算 $C_j=AB_j+C_j$ 的时候同时被TLB翻译。</p>
+<p> e. 当A的地址被TLB翻译后，它不在被需要。</p>
+</li>
+<li><p>packing<br>目前要实现得GEBP中，A矩阵在GEMM为一个内存不连续的block。为了减少A需要使用的TLB条目，将A包装成一个连续的数组 $\widetilde{A}$ 。此时 $m_c$, $k_c$ 参数选择受以下两个因素限制：</p>
+<ul>
+<li>TLB大小。令TLB条目数为 $T$，$\widetilde{A}$, $B_j$, $C_j$ 需要使用的TLB条目数分别为 $T_{\widetilde{A}}$, $T_{B_j}$, $T_{C_j}$，需要满足条件 $T_{\widetilde{A}} + 2(T_{B_j} + T_{C_j}) \leq T$。其中乘数 $2$ 的原因是：当完成计算 $C_j=\widetilde{A}B_j+C_j$ 时, $\widetilde{A}$ 是最近最少使用的，此时加载 $B_{j+1}$ 和 $C_{j+1}$ 时，将会把 $\widetilde{A}$ 在TLB的条目替换掉，因此需要保证TLB中可以同时放置 $B_j$ 和 $B_{j+1}$ 、$C_j$ 和 $C_{j+1}$。同时由于在GEBP中矩阵B也需要被重复访问，因此将B打包成一个连续的数组 $\widetilde{B}$。</li>
+<li>L2 Cache大小。由于TLB条目数的限制要大于L2 Cache大小的限制，通常不作考虑。</li>
+</ul>
+</li>
+<li><p>确保数据访问的连续性。具体做法将在后文阐述。</p>
+</li>
+<li>GEPB和GEPDOT的实现与GEBP相似。</li>
+</ol>
+<h1 id="PRACTICAL-ALGORITHMS"><a href="#PRACTICAL-ALGORITHMS" class="headerlink" title="PRACTICAL ALGORITHMS"></a>PRACTICAL ALGORITHMS</h1><p><img src="https://pic.imgdb.cn/item/65ddd9759f345e8d039c4623.jpg" alt="Alt text"></p>
+<p>TLB条目的使用情况如下：</p>
+<ul>
+<li>$\widetilde{A}$ 使用 $T_{\widetilde{A}}$ 个条目</li>
+<li>将B打包成 $\widetilde{B}$ 后，$B_j$ 和 $B_{j+1}$ 分别使用1个条目</li>
+<li>$C_{aux}$ 使用1个条目</li>
+<li>$C_j$ 使用 $n_r$ 个条目</li>
+</ul>
+<p>因此 $T_{\widetilde{A}}$ 被限制在 $T-(n_r + 3)$。$C_j$ 地址不连续并无影响，因为 $C_j$ 并不需要被重复利用。</p>
+<p>文章提到：</p>
+<ul>
+<li>B的打包是“memory-to-memory copy”，开销与 $k_c \times n$ 成正比，并且在 $2m \times n \times k_c$ 的计算量上平摊，因此对于每次拷贝，将执行 $O(m)$ 次计算。</li>
+<li>A的打包时从内存到L2 Cache的拷贝，开销与 $m_c \times k_c$ 成正比，并且在 $2m_c \times k_c \times n$ 的计算量上平摊，因此对于每次拷贝，将执行 $O(n)$ 次计算。</li>
+</ul>
+<p>综上两点，这种方式适合m和n都很大，且k不是很小的GEMM运算。</p>
+<p>对于其他情况：</p>
+<ul>
+<li>基于GEBP实现GEPM</li>
+<li>基于GEPB实现GEPP</li>
+<li>基于GEBP实现GEMP</li>
+<li>基于GEPDOT实现GEPM和GEMP</li>
+</ul>
+<p>原理都类似。<br><img src="https://pic.imgdb.cn/item/65ddd9909f345e8d039c9d2e.jpg" alt="Alt text"><br><img src="https://pic.imgdb.cn/item/65ddd9a59f345e8d039ce3dd.jpg" alt="Alt text"><br><img src="https://pic.imgdb.cn/item/65ddd9ba9f345e8d039d2a98.jpg" alt="Alt text"></p>
+<p>其中，图8和图9展示了两种GEBP算法。两者的区别是，图8的算法先将矩阵B进行包装，再每次迭代中将矩阵C从内存中传入和传出，该算法能够通过计算 $C_{aux}=\widetilde{A}B_j$ 来隐藏对矩阵C操作的延迟；图9的算法再每次迭代中将矩阵B从内存传出，计算C的值，再将C累加后对矩阵C进行unpack操作，该算法能够隐藏包装矩阵B的延迟。由于对矩阵C的unpack操作相较于对矩阵B的unpack操作开销更大，因此图8的算法要优于图9。同理，图10的算法要优于图11。</p>
+<p>图8算法和图10算法是对称的，当内存以列主序存储数据时，最好是按列访问矩阵中的每一块（图8中的A和图10中的B），因此图8算法比图10更优。</p>
+<p>而对于GEPDOT，需要将一个矩阵C的子块放在L2 Cache中，并读取矩阵A的几列和矩阵B的几行，这需要L2 Cache到寄存器的带宽是GEBP和GEPB的两倍，因此其性能较差。</p>
+<h1 id="MORE-DETAILS-YET"><a href="#MORE-DETAILS-YET" class="headerlink" title="MORE DETAILS YET"></a>MORE DETAILS YET</h1><p>上文分析得出结论，在列主序的情况下，GEBP_OPT1是最优的，下文将继续阐述实现GEBP_OPT1的更多细节。</p>
+<p><img src="https://pic.imgdb.cn/item/65ddd9d29f345e8d039d7775.jpg" alt="Alt text"></p>
+<ol>
+<li><p>寄存器分块</p>
+<p> 在计算 $C_{aux} = \widetilde{A}B_j$ 时，$C_{aux}$ 被分为 $m_r \times n_r$ 大小的子矩阵存在寄存器中。每次迭代有 $2m_rn_rk_c$ 次计算和 $m_rn_r$ 次寄存器到 $C_{aux}$ 的数据拷贝。为了隐藏数据拷贝的延迟，通常将 $k_c$ 设置大一点。</p>
+</li>
+<li><p>$m_r \times n_r$</p>
+<ul>
+<li>确保一半寄存器用于保存矩阵C的大小为 $m_r \times n_r$ 子矩阵。另外一半寄存器用于 $\widetilde{A}$ 和 $\widetilde{B}$ 的预取。</li>
+<li>当 $m_r \approx n_r$ 时，平摊加载寄存器的代价是最优的。</li>
+<li>为了保证计算能够隐藏 $\widetilde{A}$ 从L2 Cache到寄存器的延时，需要满足条件 $n_r \geq R_{comp} / (2R_{load})$。</li>
+</ul>
+</li>
+<li><p>$k_c$</p>
+<ul>
+<li>$B_j$ 需要被重复利用多次，必须存在L1 Cache内，且小于L1 Cache的一半空间，剩下的缓存空间留给 $\widetilde{A}$ 和 $C_{aux}$。</li>
+<li>$\widetilde{A}$ 占用L2 Cache的大部分。</li>
+</ul>
+</li>
+<li><p>$m_c$</p>
+<p> 减少 $m_c \times k_c$ 大小的 $\widetilde{A}$ 占用TLB和L2 Cache。</p>
+</li>
+</ol>
+<h1 id="EXPERIMENTS"><a href="#EXPERIMENTS" class="headerlink" title="EXPERIMENTS"></a>EXPERIMENTS</h1><p>文章的实验环境为Intel Pentium 4 Prescott Processor (3.6 GHz, 64bit)，参数如下：<br><img src="https://pic.imgdb.cn/item/65ddd9e59f345e8d039dc7e8.jpg" alt="Alt text"></p>
+<p>$n_r \geq R_{comp} / (2R_{load}) = 0.97$，EM64T架构包含16个128-bit寄存器，因此 $m_r \times n_r$ 设为 $4 \times 4$。</p>
+<p><img src="https://pic.imgdb.cn/item/65ddd9fc9f345e8d039e2fe7.jpg" alt="Alt text"></p>
+<p>实验结果表示当 $m_c \times k_c = 696 \times 192$ 时，性能接进极大值（$696 \times 196$）。此时 $\widetilde{A}$ 大小约等于1K，占L2 Cache一半，与理论分析相符。</p>
+<p><img src="https://pic.imgdb.cn/item/65ddda119f345e8d039e7a21.jpg" alt="Alt text"></p>
+<p>当k相对于m和n较小时，实现的时GEPP。上图四条曲线含义如下：</p>
+<ul>
+<li>最顶上表示GEBP_OPT1算子的性能</li>
+<li>第二条表示使用GEPP算法实现的DGEMM性能</li>
+<li>底部两条分别表示 $\widetilde{A}$ 和 $\widetilde{B}$ 的pack操作时间开销占整体的百分比。该操作导致kernel到dgemm的性能下降。</li>
+</ul>
+<p><img src="https://pic.imgdb.cn/item/65ddda259f345e8d039eb835.jpg" alt="Alt text"></p>
+<p>当m很小时（GEMP），将B转换为 $\widetilde{B}$ 的开销无法被计算平摊，从而导致性能较差。一种解决方法是跳过B的转换，另一种方法是实现图9的算法；同理，当m=k=2000，n较小时（GEMP），将A转换为 $\widetilde{A}$ 的开销无法被浮点计算给平摊，此时应当实现图11的算法。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>作者:</span>
+                        <span>Zhou Yee</span>
+                    </p>
+                
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2022 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/hpc/"># hpc</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">返回</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/blog/bfcd1b20.html">计算机体系结构——记分牌</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+  
+ <div id="gitalk-container"></div>  
+ <link rel="stylesheet" href="//unpkg.com/gitalk/dist/gitalk.css">
+
+<script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script type="text/javascript">
+
+ var gitalk = new Gitalk({
+
+ clientID: '86994a143adea299d26c',
+
+ clientSecret: '4651662508f77e12032fecb76d7c06ec1b29d78d',
+
+ repo: 'cszhouY.github.io',
+
+ owner: 'cszhouY',
+
+ admin: 'cszhouY',
+
+ id: md5(location.pathname), 
+
+ labels: 'Gitalk'.split(',').filter(l => l),
+
+ perPage: 10,
+
+ pagerDirection: 'last',
+
+ createIssueManually: true,
+
+ distractionFreeMode: false
+
+ })
+
+ gitalk.render('gitalk-container')
+
+</script>
+  
+
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Zhou Yee | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
